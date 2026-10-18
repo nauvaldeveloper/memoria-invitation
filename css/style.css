@@ -1,0 +1,47 @@
+/* Custom Scrollbar biar makin elegan */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #4a0404;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+}
+
+/* Efek Glow Teks */
+.text-glow {
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+}
+
+/* --- TIMELINE RESPONSIVE (MOBILE) --- */
+@media (max-width: 768px) {
+  .timeline-line {
+    left: 20px !important;
+    transform: none !important;
+  }
+  
+  .timeline-item {
+    width: 100% !important;
+    padding-left: 50px !important;
+    padding-right: 0 !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+  
+  /* Pindahkan titik/dot ke kiri */
+  .timeline-dot {
+    left: 20px !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* Paksa teks rata kiri di HP */
+  .timeline-item .text-right {
+    text-align: left !important;
+  }
+}

@@ -44,14 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ambil data
     const formData = {
+      nim: form.nim.value.trim(),          
       nama: form.nama.value.trim(),
       angkatan: form.angkatan.value.trim(),
       kehadiran: form.kehadiran.value,
       pesan: form.pesan.value.trim()
     };
 
-    // Validasi (meskipun HTML required udah jalan, ini buat jaga-jaga)
-    if (!formData.nama || !formData.angkatan || !formData.kehadiran) {
+    // Validasi
+    if (!formData.nim || !formData.nama || !formData.angkatan || !formData.kehadiran) {
       showToast('⚠ Mohon lengkapi semua field wajib!', true);
       return;
     }
@@ -80,6 +81,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Sukses!
       showToast('✓ Terima kasih, ' + formData.nama + '!');
+
+            // Sukses!
+      showToast('✓ Terima kasih, ' + formData.nama + '!');
+      
+      // --- TAMBAHKAN KODE MODAL QR DI SINI ---
+      const ticketModal = document.getElementById('ticketModal');
+      const ticketContent = document.getElementById('ticketContent');
+      const qrcodeDiv = document.getElementById('qrcode');
+      
+      // Set teks di tiket
+      document.getElementById('ticketName').textContent = formData.nama;
+      document.getElementById('ticketNim').textContent = 'NIM: ' + formData.nim;
+      
+      // Generate QR Code (isinya NIM)
+      qrcodeDiv.innerHTML = ""; // Bersihkan QR lama
+      new QRCode(qrcodeDiv, {
+        text: formData.nim, // Isi QR dengan NIM
+        width: 150,
+        height: 150,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+
+      // Tampilkan Modal
+      ticketModal.classList.remove('opacity-0', 'pointer-events-none');
+      ticketContent.classList.remove('scale-90');
+      ticketContent.classList.add('scale-100');
+
+      // Logika Tutup Modal
+      document.getElementById('closeTicketBtn').onclick = () => {
+        ticketModal.classList.add('opacity-0', 'pointer-events-none');
+        ticketContent.classList.remove('scale-100');
+        ticketContent.classList.add('scale-90');
+        form.reset(); // Reset form setelah ditutup
+      };
+      // ----------------------------------------
+
+      if (typeof window.fireConfetti === 'function') {
+        window.fireConfetti();
+      }
       
       // Reset form
       form.reset();

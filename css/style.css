@@ -45,3 +45,10 @@
     text-align: left !important;
   }
 }
+    /* 🚨 SAKTI: Membalik warna QR Code yang gelap menjadi putih bersih */
+    #qrcode img, #qrcode canvas {
+      filter: invert(1) hue-rotate(180deg) !important;
+      background-color: white !important;
+      padding: 10px;
+      border-radius: 8px;
+    }

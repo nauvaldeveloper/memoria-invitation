@@ -105,10 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
     //     correctLevel : QRCode.CorrectLevel.H
     //   });
 
-          // Generate QR Code (isinya NIM)
+            // Generate QR Code (isinya NIM)
       qrcodeDiv.innerHTML = ""; // Bersihkan QR lama
       
-      // Konfigurasi ketat anti-Dark Mode
       new QRCode(qrcodeDiv, {
         text: formData.nim,
         width: 180,
@@ -117,30 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
-
-      // --- PAKSA PUTIH PAKSAAN (ANTI-DARKMODE) ---
-      // Terkadang library nge-ignore warna dan ngikutin sistem.
-      // Kita paksa semua tag <canvas> dan <img> di dalamnya jadi putih bersih.
-      setTimeout(() => {
-        const canvas = qrcodeDiv.querySelector('canvas');
-        const img = qrcodeDiv.querySelector('img');
-        const svg = qrcodeDiv.querySelector('svg');
-        
-        // Kalau ada canvas, paksa background-nya putih
-        if (canvas) {
-          const ctx = canvas.getContext('2d');
-          ctx.globalCompositeOperation = 'destination-over'; // Gambar di belakang
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-        
-        // Kalau library menghasilkan tag <img> atau <svg>, paksa juga
-        if (img) img.style.backgroundColor = '#ffffff';
-        if (svg) svg.style.backgroundColor = '#ffffff';
-        
-        // Paksa container-nya putih
-        qrcodeDiv.style.backgroundColor = '#ffffff';
-      }, 100);
       // -------------------------------------------
 
       // Tampilkan Modal

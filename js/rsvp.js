@@ -96,11 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Generate QR Code (isinya NIM)
       qrcodeDiv.innerHTML = ""; // Bersihkan QR lama
-      new QRCode(qrcodeDiv, {
-        text: formData.nim, // Isi QR dengan NIM
+            new QRCode(qrcodeDiv, {
+        text: formData.nim,
         width: 150,
         height: 150,
-        colorDark : "#000000",
+        colorDark : "#000000", 
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H
       });

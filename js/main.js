@@ -191,29 +191,76 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- 8. SHARE BUTTON (Web Share API) ---
+    // --- 8. SHARE BUTTON (Dengan Custom Toast) ---
   const shareBtn = document.getElementById('shareBtn');
-  
+  const shareToast = document.getElementById('shareToast');
+  let shareToastTimer;
+
+  // Fungsi untuk memunculkan Toast Mewah
+  function showShareToast() {
+    if (!shareToast) return;
+    
+    // Animasi masuk (Slide Down & Fade In)
+    shareToast.classList.remove('-translate-y-20', 'opacity-0');
+    shareToast.classList.add('translate-y-0', 'opacity-100');
+
+    // Hilangkan setelah 3.5 detik
+    clearTimeout(shareToastTimer);
+    shareToastTimer = setTimeout(() => {
+      shareToast.classList.remove('translate-y-0', 'opacity-100');
+      shareToast.classList.add('-translate-y-20', 'opacity-0');
+    }, 3500);
+  }
+
   if (shareBtn) {
-    shareBtn.addEventListener('click', async () => {
+    shareBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+
       const shareData = {
         title: 'Undangan Memoria - Diesnatalis SIKC',
         text: 'Merayakan perjalanan, menciptakan kenangan yang abadi. Yuk hadiri Memoria!',
         url: window.location.href
       };
 
-      try {
-        if (navigator.share) {
-          // Gunakan native share (di HP akan muncul menu WA, IG, dll)
+      if (navigator.share) {
+        try {
           await navigator.share(shareData);
-        } else {
-          // Fallback: Copy link jika browser tidak support
-          await navigator.clipboard.writeText(window.location.href);
-          alert('Link undangan berhasil di-copy! Silakan share ke temanmu.');
+        } catch (err) {
+          // User membatalkan share, atau error, kita salin link
+          copyToClipboard(shareData.url);
         }
-      } catch (err) {
-        console.log('Error sharing:', err);
+      } else {
+        // Jika di PC/Laptop yang tidak support native share
+        copyToClipboard(shareData.url);
       }
     });
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        showShareToast(); // Panggil Toast Mewah
+      }).catch(err => {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showShareToast(); // Panggil Toast Mewah
+    } catch (err) {
+      console.error('Gagal menyalin', err);
+    }
+    document.body.removeChild(textArea);
   }
 });

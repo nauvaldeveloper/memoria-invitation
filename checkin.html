@@ -23,24 +23,32 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   
-  <style>
-    /* CSS Khusus untuk library scanner agar tidak berantakan */
+    <style>
+    /* 1. Pengaturan Kotak Kamera */
     #reader {
       width: 100%;
-      max-width: 500px;
+      max-width: 400px; 
+      min-height: 350px; /* Sedikit lebih tinggi agar proporsional */
       margin: 0 auto;
       border-radius: 1rem;
       overflow: hidden;
       border: 2px solid #d4af37;
-      background: #000;
+      background: #111;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    /* Memastikan video dari kamera menutupi area kotak */
+
+    /* 2. Paksa Video Kamera Memenuhi Kotak */
     #reader video {
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important;
+      border-radius: 1rem;
     }
-    /* Menghilangkan tombol bawaan library yang jelek */
+
+    /* 3. Styling Tombol Bawaan (Kalau muncul) */
     #reader__dashboard_section_csr button {
       background-color: #d4af37 !important;
       color: black !important;
@@ -52,6 +60,11 @@
     }
     #reader__dashboard_section_csr {
       padding: 10px !important;
+    }
+
+    /* 4. Sembunyikan UI Bawaan Library yang Bikin Berantakan */
+    #reader__dashboard {
+      display: none !important;
     }
   </style>
 </head>
@@ -113,10 +126,10 @@
   </div>
 
   <script>
-    // ⚠️ GANTI DENGAN URL APPS SCRIPT KAMU ⚠️
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxzmrp8hJdNG1hTIYy3odv_bgPPdhmtGsDL_yQSXVfBYjRm36hfdo7SJKJVeOAPiMAoCg/exec';
+       // ⚠️ GANTI DENGAN URL APPS SCRIPT KAMU ⚠️
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxXXXXXX.../exec';
 
-    let html5QrCode;
+    let html5QrCode = null;
     let allData = [];
     let isProcessing = false;
     let isScannerRunning = false;
@@ -124,9 +137,10 @@
     // --- 1. INISIALISASI & LOAD DATA ---
     document.addEventListener('DOMContentLoaded', () => {
       fetchData();
+      // Kita inisialisasi objek scanner di awal, tapi jangan langsung start
+      html5QrCode = new Html5Qrcode("reader");
     });
 
-    // Ambil data peserta dari Google Sheets
     async function fetchData() {
       try {
         const res = await fetch(`${API_URL}?t=${new Date().getTime()}`);
@@ -142,31 +156,45 @@
       }
     }
 
-    // --- 2. FUNGSI KAMERA SCANNER ---
+    // --- 2. FUNGSI KAMERA SCANNER (LEBIH STABIL) ---
     function startScanner() {
+      // Jika kamera sudah menyala, jangan start lagi
       if (isScannerRunning) return;
 
-      // Inisialisasi library
-      if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode("reader");
-      }
+      // Konfigurasi kamera
+      const config = { 
+        fps: 10, 
+        qrbox: function(viewfinderWidth, viewfinderHeight) {
+          // Membuat kotak scan responsif (60% dari lebar layar)
+          let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          let qrboxSize = Math.floor(minEdge * 0.7);
+          return { width: qrboxSize, height: qrboxSize };
+        }
+      };
 
+      // Mulai kamera
       html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { facingMode: "environment" }, // Pakai kamera belakang
+        config,
         (decodedText) => {
+          // QR BERHASIL TERBACA
           if (!isProcessing) {
             handleCheckIn(decodedText);
           }
         },
-        (errorMessage) => { /* Abaikan error scan kontinu */ }
+        (errorMessage) => {
+          // Abaikan error frame-by-frame (normal terjadi saat mencari QR)
+        }
       ).then(() => {
         isScannerRunning = true;
       }).catch(err => {
+        console.error("Gagal start kamera:", err);
+        // Tampilkan pesan error di kotak reader
         document.getElementById('reader').innerHTML = `
-          <div class="p-6 text-center text-red-500">
-            <p class="font-bold mb-2">Kamera Gagal Diakses</p>
-            <p class="text-sm text-gray-400">Pastikan Anda memberikan izin kamera dan web diakses melalui HTTPS.</p>
+          <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-red-500 bg-black/80 z-50">
+            <p class="font-bold mb-2 text-lg">Kamera Tidak Dapat Diakses</p>
+            <p class="text-sm text-gray-300">Pastikan Anda mengizinkan akses kamera dan web dibuka menggunakan <b>HTTPS</b>.</p>
+            <button onclick="startScanner()" class="mt-4 px-4 py-2 bg-memoria-gold text-black rounded font-bold">Coba Lagi</button>
           </div>`;
       });
     }
@@ -175,7 +203,10 @@
       if (html5QrCode && isScannerRunning) {
         html5QrCode.stop().then(() => {
           isScannerRunning = false;
-        }).catch(err => console.log(err));
+        }).catch(err => {
+          console.log("Gagal stop kamera:", err);
+          isScannerRunning = false;
+        });
       }
     }
 
@@ -194,32 +225,32 @@
           body: JSON.stringify({ action: 'checkin', nim: nim })
         });
 
-        // Tunggu 1 detik agar Google Sheets selesai memproses
         setTimeout(async () => {
-          await fetchData(); 
+          await fetchData(); // Refresh data
           
           const peserta = allData.find(d => String(d['NIM']).trim() === String(nim).trim());
           
           if (peserta) {
             if (peserta['Status Check-In'] === 'Hadir') {
-               showOverlay('warning', 'Sudah Check-In', `${peserta['Nama']} (${nim})`);
+               showOverlay('warning', 'Sudah Check-In', `${peserta['Nama']}`);
             } else {
-               showOverlay('success', 'Berhasil Check-In!', `${peserta['Nama']} (${nim})`);
+               showOverlay('success', 'Berhasil!', `${peserta['Nama']}`);
             }
           } else {
-            showOverlay('error', 'Gagal', 'NIM tidak ditemukan di database.');
+            showOverlay('error', 'Gagal', 'NIM tidak ditemukan.');
           }
           
-          isProcessing = false;
-        }, 1200);
+          // Beri jeda 2 detik sebelum bisa scan lagi (biar gak double scan)
+          setTimeout(() => { isProcessing = false; }, 2000);
+        }, 1000);
 
       } catch (err) {
-        showOverlay('error', 'Koneksi Gagal', 'Periksa internet panitia.');
+        showOverlay('error', 'Koneksi Gagal', 'Periksa internet.');
         isProcessing = false;
       }
     }
 
-    // --- 4. UI OVERLAY (Notifikasi Scan) ---
+    // --- 4. UI OVERLAY ---
     function showOverlay(type, title, desc) {
       const overlay = document.getElementById('scanOverlay');
       const content = document.getElementById('overlayContent');
@@ -235,15 +266,11 @@
         content.className = 'relative z-10 text-center p-8 bg-gray-900 border-2 border-yellow-500 rounded-2xl max-w-sm w-[90%] shadow-2xl';
         icon.innerHTML = '<div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-yellow-500 mx-auto"></div>';
         titleEl.className = 'text-2xl font-bold mb-2 text-yellow-500 mt-4';
-        descEl.innerText = desc;
-        descEl.className = 'text-gray-400 font-mono';
-        
-        // SEMBUNYIKAN TOMBOL SAAT LOADING
+        descEl.className = 'text-gray-400 font-mono mt-2';
         closeBtn.style.display = 'none'; 
       } else {
-        // MUNCULKAN TOMBOL SAAT SELESAI
         closeBtn.style.display = 'block'; 
-        descEl.className = 'text-gray-300 text-lg';
+        descEl.className = 'text-gray-300 text-lg mt-2';
 
         if (type === 'success') {
           content.className = 'relative z-10 text-center p-8 bg-gray-900 border-2 border-green-500 rounded-2xl max-w-sm w-[90%] shadow-[0_0_50px_rgba(34,197,94,0.3)]';
@@ -269,12 +296,11 @@
       overlay.classList.add('opacity-0');
       setTimeout(() => {
         overlay.classList.add('hidden');
-        // Hapus teks NIM dari deskripsi sebelumnya
         document.getElementById('overlayDesc').innerText = ''; 
       }, 300);
     });
 
-    // --- 5. FITUR TAB SWITCHING & MANUAL SEARCH ---
+    // --- 5. TAB SWITCHING & MANUAL SEARCH ---
     const tabScanBtn = document.getElementById('tabScanBtn');
     const tabManualBtn = document.getElementById('tabManualBtn');
     const scanContainer = document.getElementById('scanContainer');
@@ -290,7 +316,7 @@
       tabScanBtn.className = 'flex-1 py-2.5 bg-memoria-gold text-black font-bold rounded-lg transition-colors shadow-[0_0_15px_rgba(212,175,55,0.3)]';
       tabManualBtn.className = 'flex-1 py-2.5 bg-gray-800 text-gray-300 font-bold rounded-lg transition-colors';
       
-      // Nyalakan kamera lagi
+      // Paksa start kamera setiap kali tab diklik
       startScanner();
     });
 
@@ -302,13 +328,16 @@
       tabManualBtn.className = 'flex-1 py-2.5 bg-memoria-gold text-black font-bold rounded-lg transition-colors shadow-[0_0_15px_rgba(212,175,55,0.3)]';
       tabScanBtn.className = 'flex-1 py-2.5 bg-gray-800 text-gray-300 font-bold rounded-lg transition-colors';
       
-      // Matikan kamera agar hemat baterai & tidak error saat hidden
       stopScanner();
       
-      // Kosongkan hasil pencarian tiap ganti tab
       searchInput.value = '';
       searchResults.innerHTML = '<p class="text-center text-gray-500 text-sm mt-10">Ketik nama atau NIM untuk mencari.</p>';
       searchInput.focus();
+    });
+
+    // Panggil startScanner saat pertama kali load (karena tab awal adalah Scan)
+    window.addEventListener('load', () => {
+      startScanner();
     });
 
     // Logika Pencarian Manual
@@ -349,9 +378,7 @@
       });
     });
 
-    // Ekspos fungsi handleCheckIn ke global (agar bisa dipanggil dari tombol manual)
     window.handleCheckIn = handleCheckIn;
-
   </script>
 </body>
 </html>

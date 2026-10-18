@@ -132,89 +132,84 @@
     let html5QrCode = null;
     let allData = [];
     let isProcessing = false;
-    let isScannerRunning = false;
 
-    // --- 1. INISIALISASI & LOAD DATA ---
     document.addEventListener('DOMContentLoaded', () => {
       fetchData();
-      // Kita inisialisasi objek scanner di awal, tapi jangan langsung start
-      html5QrCode = new Html5Qrcode("reader");
     });
 
     async function fetchData() {
       try {
         const res = await fetch(`${API_URL}?t=${new Date().getTime()}`);
         const result = await res.json();
-        
         if (result.status === 'ok') {
           allData = result.data;
           const hadir = allData.filter(d => d['Status Check-In'] === 'Hadir').length;
           document.getElementById('totalHadir').innerText = hadir;
         }
-      } catch (err) {
-        console.error('Gagal ambil data', err);
-      }
+      } catch (err) { console.error('Gagal ambil data', err); }
     }
 
-    // --- 2. FUNGSI KAMERA SCANNER (LEBIH STABIL) ---
+    // --- FUNGSI KAMERA VERSI 3 (ANTI-GAGAL) ---
     function startScanner() {
-      // Jika kamera sudah menyala, jangan start lagi
-      if (isScannerRunning) return;
+      // 1. Bersihkan kotak kamera terlebih dahulu
+      const readerDiv = document.getElementById('reader');
+      readerDiv.innerHTML = ''; 
 
-      // Konfigurasi kamera
+      if (html5QrCode) {
+        try { html5QrCode.clear(); } catch (e) {}
+      }
+
+      // 2. Buat instance baru
+      html5QrCode = new Html5Qrcode("reader", { 
+        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+        verbose: false 
+      });
+
+      // 3. Konfigurasi kamera yang lebih ringan & agresif
       const config = { 
-        fps: 10, 
-        qrbox: function(viewfinderWidth, viewfinderHeight) {
-          // Membuat kotak scan responsif (60% dari lebar layar)
-          let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-          let qrboxSize = Math.floor(minEdge * 0.7);
-          return { width: qrboxSize, height: qrboxSize };
-        }
+        fps: 30, // Naikkan FPS (frame per second) agar lebih sensitif menangkap QR
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0 
       };
 
-      // Mulai kamera
+      // 4. Paksa gunakan kamera belakang dengan resolusi standar (HD)
       html5QrCode.start(
-        { facingMode: "environment" }, // Pakai kamera belakang
+        { facingMode: "environment" }, 
         config,
         (decodedText) => {
-          // QR BERHASIL TERBACA
+          // TEPUK TANGAN! QR berhasil terbaca
           if (!isProcessing) {
+            // Bunyikan suara beep (opsional, biar panitia tau udah ke-scan)
+            try {
+              let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              let oscillator = audioCtx.createOscillator();
+              oscillator.type = 'sine';
+              oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+              oscillator.connect(audioCtx.destination);
+              oscillator.start();
+              oscillator.stop(audioCtx.currentTime + 0.1); // Bunyi 0.1 detik
+            } catch(e) {}
+
             handleCheckIn(decodedText);
           }
         },
         (errorMessage) => {
-          // Abaikan error frame-by-frame (normal terjadi saat mencari QR)
+          // Abaikan error frame-by-frame
         }
-      ).then(() => {
-        isScannerRunning = true;
-      }).catch(err => {
-        console.error("Gagal start kamera:", err);
-        // Tampilkan pesan error di kotak reader
-        document.getElementById('reader').innerHTML = `
+      ).catch(err => {
+        console.error("Kamera gagal:", err);
+        readerDiv.innerHTML = `
           <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-red-500 bg-black/80 z-50">
-            <p class="font-bold mb-2 text-lg">Kamera Tidak Dapat Diakses</p>
-            <p class="text-sm text-gray-300">Pastikan Anda mengizinkan akses kamera dan web dibuka menggunakan <b>HTTPS</b>.</p>
-            <button onclick="startScanner()" class="mt-4 px-4 py-2 bg-memoria-gold text-black rounded font-bold">Coba Lagi</button>
+            <p class="font-bold text-lg mb-2">Kamera Gagal Nyala</p>
+            <p class="text-xs text-gray-300 mb-4">Pastikan memakai HTTPS & izin kamera diberikan.</p>
+            <button onclick="startScanner()" class="px-4 py-2 bg-memoria-gold text-black rounded font-bold">Coba Lagi</button>
           </div>`;
       });
     }
 
-    function stopScanner() {
-      if (html5QrCode && isScannerRunning) {
-        html5QrCode.stop().then(() => {
-          isScannerRunning = false;
-        }).catch(err => {
-          console.log("Gagal stop kamera:", err);
-          isScannerRunning = false;
-        });
-      }
-    }
-
-    // --- 3. LOGIKA CHECK-IN ---
+    // --- LOGIKA CHECK-IN ---
     async function handleCheckIn(nim) {
       isProcessing = true;
-      
-      // Tampilkan loading overlay
       showOverlay('loading', 'Memproses...', `NIM: ${nim}`);
 
       try {
@@ -226,8 +221,7 @@
         });
 
         setTimeout(async () => {
-          await fetchData(); // Refresh data
-          
+          await fetchData(); 
           const peserta = allData.find(d => String(d['NIM']).trim() === String(nim).trim());
           
           if (peserta) {
@@ -237,11 +231,10 @@
                showOverlay('success', 'Berhasil!', `${peserta['Nama']}`);
             }
           } else {
-            showOverlay('error', 'Gagal', 'NIM tidak ditemukan.');
+            showOverlay('error', 'Gagal', 'NIM tidak terdaftar.');
           }
           
-          // Beri jeda 2 detik sebelum bisa scan lagi (biar gak double scan)
-          setTimeout(() => { isProcessing = false; }, 2000);
+          setTimeout(() => { isProcessing = false; }, 2000); // Jeda 2 detik
         }, 1000);
 
       } catch (err) {
@@ -250,7 +243,7 @@
       }
     }
 
-    // --- 4. UI OVERLAY ---
+    // --- UI OVERLAY (Sama seperti sebelumnya) ---
     function showOverlay(type, title, desc) {
       const overlay = document.getElementById('scanOverlay');
       const content = document.getElementById('overlayContent');
@@ -271,22 +264,17 @@
       } else {
         closeBtn.style.display = 'block'; 
         descEl.className = 'text-gray-300 text-lg mt-2';
-
         if (type === 'success') {
           content.className = 'relative z-10 text-center p-8 bg-gray-900 border-2 border-green-500 rounded-2xl max-w-sm w-[90%] shadow-[0_0_50px_rgba(34,197,94,0.3)]';
-          icon.innerHTML = '✅';
-          titleEl.className = 'text-2xl font-bold mb-2 text-green-500';
+          icon.innerHTML = '✅'; titleEl.className = 'text-2xl font-bold mb-2 text-green-500';
         } else if (type === 'warning') {
           content.className = 'relative z-10 text-center p-8 bg-gray-900 border-2 border-yellow-500 rounded-2xl max-w-sm w-[90%] shadow-2xl';
-          icon.innerHTML = '⚠️';
-          titleEl.className = 'text-2xl font-bold mb-2 text-yellow-500';
+          icon.innerHTML = '⚠️'; titleEl.className = 'text-2xl font-bold mb-2 text-yellow-500';
         } else {
           content.className = 'relative z-10 text-center p-8 bg-gray-900 border-2 border-red-500 rounded-2xl max-w-sm w-[90%] shadow-2xl';
-          icon.innerHTML = '❌';
-          titleEl.className = 'text-2xl font-bold mb-2 text-red-500';
+          icon.innerHTML = '❌'; titleEl.className = 'text-2xl font-bold mb-2 text-red-500';
         }
       }
-
       titleEl.innerText = title;
       if(type !== 'loading') descEl.innerText = desc;
     }
@@ -300,7 +288,7 @@
       }, 300);
     });
 
-    // --- 5. TAB SWITCHING & MANUAL SEARCH ---
+    // --- TAB SWITCHING ---
     const tabScanBtn = document.getElementById('tabScanBtn');
     const tabManualBtn = document.getElementById('tabManualBtn');
     const scanContainer = document.getElementById('scanContainer');
@@ -312,35 +300,33 @@
       scanContainer.classList.remove('hidden');
       manualContainer.classList.add('hidden');
       manualContainer.classList.remove('flex');
-      
       tabScanBtn.className = 'flex-1 py-2.5 bg-memoria-gold text-black font-bold rounded-lg transition-colors shadow-[0_0_15px_rgba(212,175,55,0.3)]';
       tabManualBtn.className = 'flex-1 py-2.5 bg-gray-800 text-gray-300 font-bold rounded-lg transition-colors';
       
-      // Paksa start kamera setiap kali tab diklik
-      startScanner();
+      startScanner(); // Nyalakan kamera
     });
 
     tabManualBtn.addEventListener('click', () => {
       scanContainer.classList.add('hidden');
       manualContainer.classList.remove('hidden');
       manualContainer.classList.add('flex');
-      
       tabManualBtn.className = 'flex-1 py-2.5 bg-memoria-gold text-black font-bold rounded-lg transition-colors shadow-[0_0_15px_rgba(212,175,55,0.3)]';
       tabScanBtn.className = 'flex-1 py-2.5 bg-gray-800 text-gray-300 font-bold rounded-lg transition-colors';
       
-      stopScanner();
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+           document.getElementById('reader').innerHTML = '';
+        }).catch(e => console.log(e));
+      }
       
       searchInput.value = '';
       searchResults.innerHTML = '<p class="text-center text-gray-500 text-sm mt-10">Ketik nama atau NIM untuk mencari.</p>';
       searchInput.focus();
     });
 
-    // Panggil startScanner saat pertama kali load (karena tab awal adalah Scan)
-    window.addEventListener('load', () => {
-      startScanner();
-    });
+    window.addEventListener('load', () => { startScanner(); });
 
-    // Logika Pencarian Manual
+    // --- MANUAL SEARCH ---
     searchInput.addEventListener('input', (e) => {
       const keyword = e.target.value.toLowerCase();
       searchResults.innerHTML = '';

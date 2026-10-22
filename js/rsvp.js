@@ -2,7 +2,7 @@
 // LOGIKA RSVP & GOOGLE SHEETS
 // ==========================================
 
-// link api nya
+// Link API Google Apps Script kamu
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzmrp8hJdNG1hTIYy3odv_bgPPdhmtGsDL_yQSXVfBYjRm36hfdo7SJKJVeOAPiMAoCg/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function showToast(message, isError = false) {
     toastMsg.textContent = message;
     
-    // Ubah warna jika error
     if (isError) {
       toast.classList.remove('border-memoria-gold', 'text-memoria-gold-light', 'shadow-[0_10px_40px_rgba(212,175,55,0.4)]');
       toast.classList.add('border-red-500', 'text-red-200', 'shadow-[0_10px_40px_rgba(239,68,68,0.4)]');
@@ -26,11 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
       toast.classList.remove('border-red-500', 'text-red-200', 'shadow-[0_10px_40px_rgba(239,68,68,0.4)]');
     }
 
-    // Munculkan
     toast.classList.remove('translate-y-20', 'opacity-0');
     toast.classList.add('translate-y-0', 'opacity-100');
 
-    // Hilangkan setelah 3.5 detik
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
       toast.classList.remove('translate-y-0', 'opacity-100');
@@ -66,67 +63,59 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     try {
-      // Kirim ke Google Apps Script
+      // 1. Kirim ke Google Apps Script
       await fetch(API_URL, {
         method: 'POST',
-        mode: 'no-cors', // PENTING untuk Apps Script
+        mode: 'no-cors', 
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(formData)
       });
 
-      // Simpan backup di localStorage
+      // 2. Simpan backup di localStorage
       const list = JSON.parse(localStorage.getItem('rsvpMemoria') || '[]');
       list.push({ ...formData, waktu: new Date().toISOString() });
       localStorage.setItem('rsvpMemoria', JSON.stringify(list));
 
-      // Sukses!
+      // 3. Tampilkan Toast Sukses
       showToast('✓ Terima kasih, ' + formData.nama + '!');
 
-            // Sukses!
-      showToast('✓ Terima kasih, ' + formData.nama + '!');
-      
-            // --- MODAL QR (Menggunakan Library Modern) ---
+      // 4. Tampilkan Modal Tiket & QR Code
       const ticketModal = document.getElementById('ticketModal');
       const ticketContent = document.getElementById('ticketContent');
       const qrcodeContainer = document.getElementById('qrcode');
       
-      // Set teks di tiket
       document.getElementById('ticketName').textContent = formData.nama;
       document.getElementById('ticketNim').textContent = 'NIM: ' + formData.nim;
-      
-      // Bersihkan QR lama
-      qrcodeContainer.innerHTML = ""; 
+      qrcodeContainer.innerHTML = ""; // Bersihkan QR lama
 
-      // Generate QR Code pakai API yang benar
-      QRCode.toDataURL(formData.nim, { 
-        width: 180,
-        margin: 2,
-        color: {
-          dark: "#000000",  // Hitam murni
-          light: "#ffffff"  // Putih murni
-        },
-        errorCorrectionLevel: 'H' 
-      })
-      .then(url => {
-        // Buat elemen gambar dan masukkan ke container
-        const img = document.createElement('img');
-        img.src = url;
-        img.style.width = '180px';
-        img.style.height = '180px';
-        img.style.display = 'block';
-        
-        qrcodeContainer.appendChild(img);
-        
-        // Paksa background container jadi putih (jaga-jaga dark mode)
-        qrcodeContainer.style.backgroundColor = '#ffffff';
-        qrcodeContainer.style.padding = '15px';
-        qrcodeContainer.style.borderRadius = '12px';
-        qrcodeContainer.style.display = 'inline-block';
-      })
-      .catch(err => {
-        console.error("Gagal buat QR:", err);
-        qrcodeContainer.innerHTML = "<p class='text-black text-xs'>Gagal memuat QR</p>";
-      });
+      // Cek apakah library QRCode berhasil dimuat
+      if (typeof QRCode !== 'undefined') {
+        QRCode.toDataURL(formData.nim, { 
+          width: 180,
+          margin: 2,
+          color: { dark: "#000000", light: "#ffffff" },
+          errorCorrectionLevel: 'H' 
+        })
+        .then(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.style.width = '180px';
+          img.style.height = '180px';
+          img.style.display = 'block';
+          
+          qrcodeContainer.appendChild(img);
+          qrcodeContainer.style.backgroundColor = '#ffffff';
+          qrcodeContainer.style.padding = '15px';
+          qrcodeContainer.style.borderRadius = '12px';
+          qrcodeContainer.style.display = 'inline-block';
+        })
+        .catch(err => {
+          console.error("Gagal buat QR:", err);
+          qrcodeContainer.innerHTML = "<p class='text-black text-xs'>Gagal memuat QR</p>";
+        });
+      } else {
+        console.error("Library QRCode belum termuat di HTML!");
+      }
 
       // Tampilkan Modal
       ticketModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -138,23 +127,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ticketModal.classList.add('opacity-0', 'pointer-events-none');
         ticketContent.classList.remove('scale-100');
         ticketContent.classList.add('scale-90');
-        form.reset(); 
+        form.reset(); // Form di-reset SETELAH modal ditutup
       };
-      // ----------------------------------------
 
-      if (typeof window.fireConfetti === 'function') {
-        window.fireConfetti();
-      }
-      
-      // Reset form
-      form.reset();
-      
-      // Panggil fungsi confetti (dari file confetti.js)
+      // 5. Confetti
       if (typeof window.fireConfetti === 'function') {
         window.fireConfetti();
       }
 
     } catch (error) {
+      // Error ini hanya akan muncul jika fetch beneran gagal (misal internet mati)
       console.error('RSVP Error:', error);
       showToast('⚠ Gagal mengirim. Cek koneksi internetmu.', true);
     } finally {

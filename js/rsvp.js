@@ -85,38 +85,43 @@ document.addEventListener('DOMContentLoaded', () => {
             // Sukses!
       showToast('✓ Terima kasih, ' + formData.nama + '!');
       
-      // --- TAMBAHKAN KODE MODAL QR DI SINI ---
+            // --- MODAL QR (Menggunakan Library Modern) ---
       const ticketModal = document.getElementById('ticketModal');
       const ticketContent = document.getElementById('ticketContent');
-      const qrcodeDiv = document.getElementById('qrcode');
+      const qrcodeContainer = document.getElementById('qrcode');
       
       // Set teks di tiket
       document.getElementById('ticketName').textContent = formData.nama;
       document.getElementById('ticketNim').textContent = 'NIM: ' + formData.nim;
       
-      // Generate QR Code (isinya NIM)
-    //   qrcodeDiv.innerHTML = ""; // Bersihkan QR lama
-    //         new QRCode(qrcodeDiv, {
-    //     text: formData.nim,
-    //     width: 150,
-    //     height: 150,
-    //     colorDark : "#000000", 
-    //     colorLight : "#ffffff",
-    //     correctLevel : QRCode.CorrectLevel.H
-    //   });
+      // Bersihkan QR lama
+      qrcodeContainer.innerHTML = ""; 
 
-            // Generate QR Code (isinya NIM)
-      qrcodeDiv.innerHTML = ""; // Bersihkan QR lama
-      
-      new QRCode(qrcodeDiv, {
-        text: formData.nim,
+      // Generate QR Code (Paksa warna Putih & Hitam murni)
+      QRCode.toCanvas(formData.nim, { 
         width: 180,
-        height: 180,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+        margin: 2,
+        color: {
+          dark: "#000000",  // Warna kotak QR
+          light: "#ffffff"  // Warna background (Putih murni)
+        },
+        errorCorrectionLevel: 'H' // Level tertinggi agar kamera mudah baca
+      }, function (error, canvas) {
+        if (error) {
+          console.error("Gagal membuat QR:", error);
+          qrcodeContainer.innerHTML = "<p class='text-black text-xs'>Gagal memuat QR</p>";
+          return;
+        }
+        
+        // Masukkan canvas ke dalam container
+        qrcodeContainer.appendChild(canvas);
+        
+        // Paksa background container di HTML jadi putih
+        qrcodeContainer.style.backgroundColor = '#ffffff';
+        qrcodeContainer.style.padding = '15px';
+        qrcodeContainer.style.borderRadius = '12px';
+        qrcodeContainer.style.display = 'inline-block';
       });
-      // -------------------------------------------
 
       // Tampilkan Modal
       ticketModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -128,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ticketModal.classList.add('opacity-0', 'pointer-events-none');
         ticketContent.classList.remove('scale-100');
         ticketContent.classList.add('scale-90');
-        form.reset(); // Reset form setelah ditutup
+        form.reset(); 
       };
       // ----------------------------------------
 

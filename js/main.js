@@ -263,4 +263,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.body.removeChild(textArea);
   }
+
+    // --- 9. THEME TOGGLE (LIGHT / DARK MODE) ---
+  const themeToggle = document.getElementById('themeToggle');
+  const iconMoon = document.getElementById('iconMoon');
+  const iconSun = document.getElementById('iconSun');
+  
+  // Cek penyimpanan lokal (default: 'light')
+  let currentTheme = localStorage.getItem('memoriaTheme') || 'light';
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('bg-memoria-black'); // Pastikan background gelap
+      document.body.style.backgroundColor = '#0a0a0a'; // Fallback
+      iconMoon.classList.add('hidden');
+      iconSun.classList.remove('hidden');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('bg-memoria-black');
+      document.body.style.backgroundColor = '#f5f5f5'; // Warna putih/abu terang
+      iconSun.classList.add('hidden');
+      iconMoon.classList.remove('hidden');
+    }
+  }
+
+  // Terapkan saat pertama load
+  applyTheme(currentTheme);
+
+  // Aksi saat tombol diklik
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('memoriaTheme', currentTheme);
+      applyTheme(currentTheme);
+    });
+  }
 });

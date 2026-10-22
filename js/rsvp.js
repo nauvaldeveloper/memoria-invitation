@@ -97,30 +97,35 @@ document.addEventListener('DOMContentLoaded', () => {
       // Bersihkan QR lama
       qrcodeContainer.innerHTML = ""; 
 
-      // Generate QR Code (Paksa warna Putih & Hitam murni)
-      QRCode.toCanvas(formData.nim, { 
+      // Generate QR Code pakai API yang benar
+      QRCode.toDataURL(formData.nim, { 
         width: 180,
         margin: 2,
         color: {
-          dark: "#000000",  // Warna kotak QR
-          light: "#ffffff"  // Warna background (Putih murni)
+          dark: "#000000",  // Hitam murni
+          light: "#ffffff"  // Putih murni
         },
-        errorCorrectionLevel: 'H' // Level tertinggi agar kamera mudah baca
-      }, function (error, canvas) {
-        if (error) {
-          console.error("Gagal membuat QR:", error);
-          qrcodeContainer.innerHTML = "<p class='text-black text-xs'>Gagal memuat QR</p>";
-          return;
-        }
+        errorCorrectionLevel: 'H' 
+      })
+      .then(url => {
+        // Buat elemen gambar dan masukkan ke container
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.width = '180px';
+        img.style.height = '180px';
+        img.style.display = 'block';
         
-        // Masukkan canvas ke dalam container
-        qrcodeContainer.appendChild(canvas);
+        qrcodeContainer.appendChild(img);
         
-        // Paksa background container di HTML jadi putih
+        // Paksa background container jadi putih (jaga-jaga dark mode)
         qrcodeContainer.style.backgroundColor = '#ffffff';
         qrcodeContainer.style.padding = '15px';
         qrcodeContainer.style.borderRadius = '12px';
         qrcodeContainer.style.display = 'inline-block';
+      })
+      .catch(err => {
+        console.error("Gagal buat QR:", err);
+        qrcodeContainer.innerHTML = "<p class='text-black text-xs'>Gagal memuat QR</p>";
       });
 
       // Tampilkan Modal

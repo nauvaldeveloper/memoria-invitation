@@ -45,3 +45,18 @@
     text-align: left !important;
   }
 }
+/* Memaksa background QR jadi putih murni & membalik warna jika Dark Mode */
+#qrcode {
+  background-color: #ffffff !important;
+  padding: 15px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+#qrcode img, 
+#qrcode canvas {
+  /* Ini trik sakti buat ngebalik warna dark mode */
+  filter: invert(1) hue-rotate(180deg) !important; 
+  background-color: #ffffff !important;
+  display: block;
+}

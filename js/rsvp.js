@@ -79,43 +79,26 @@ document.addEventListener('DOMContentLoaded', () => {
       // 3. Tampilkan Toast Sukses
       showToast('✓ Terima kasih, ' + formData.nama + '!');
 
-      // 4. Tampilkan Modal Tiket & QR Code
+            // 4. Tampilkan Modal Tiket & QR Code
       const ticketModal = document.getElementById('ticketModal');
       const ticketContent = document.getElementById('ticketContent');
       const qrcodeContainer = document.getElementById('qrcode');
       
       document.getElementById('ticketName').textContent = formData.nama;
       document.getElementById('ticketNim').textContent = 'NIM: ' + formData.nim;
-      qrcodeContainer.innerHTML = ""; // Bersihkan QR lama
+      
+      // Bersihkan QR lama
+      qrcodeContainer.innerHTML = ""; 
 
-      // Cek apakah library QRCode berhasil dimuat
-      if (typeof QRCode !== 'undefined') {
-        QRCode.toDataURL(formData.nim, { 
-          width: 180,
-          margin: 2,
-          color: { dark: "#000000", light: "#ffffff" },
-          errorCorrectionLevel: 'H' 
-        })
-        .then(url => {
-          const img = document.createElement('img');
-          img.src = url;
-          img.style.width = '180px';
-          img.style.height = '180px';
-          img.style.display = 'block';
-          
-          qrcodeContainer.appendChild(img);
-          qrcodeContainer.style.backgroundColor = '#ffffff';
-          qrcodeContainer.style.padding = '15px';
-          qrcodeContainer.style.borderRadius = '12px';
-          qrcodeContainer.style.display = 'inline-block';
-        })
-        .catch(err => {
-          console.error("Gagal buat QR:", err);
-          qrcodeContainer.innerHTML = "<p class='text-black text-xs'>Gagal memuat QR</p>";
-        });
-      } else {
-        console.error("Library QRCode belum termuat di HTML!");
-      }
+      // Generate pakai library lama (tapi udah kita akalin)
+      new QRCode(qrcodeContainer, {
+        text: formData.nim,
+        width: 180,
+        height: 180,
+        colorDark: "#000000", // Kotak QR
+        colorLight: "#ffffff", // Background
+        correctLevel: QRCode.CorrectLevel.H
+      });
 
       // Tampilkan Modal
       ticketModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -127,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ticketModal.classList.add('opacity-0', 'pointer-events-none');
         ticketContent.classList.remove('scale-100');
         ticketContent.classList.add('scale-90');
-        form.reset(); // Form di-reset SETELAH modal ditutup
+        form.reset(); 
       };
 
       // 5. Confetti

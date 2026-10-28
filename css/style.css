@@ -45,4 +45,16 @@
     text-align: left !important;
   }
 }
-/* Memaksa background QR jadi putih murni & membalik warna jika Dark Mode */
+/* Styling untuk Dropdown Option agar tidak putih polos */
+select option {
+  background-color: #1a1a1a; /* Warna gelap */
+  color: #f3e5ab; /* Warna teks gold-light */
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* Mengubah warna saat option di-hover (di beberapa browser) */
+select option:hover, select option:focus {
+  background-color: #4a0404;
+  color: white;
+}

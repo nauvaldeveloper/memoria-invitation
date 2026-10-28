@@ -56,12 +56,12 @@
 </head>
 <body class="bg-memoria-black text-gray-200 font-sans overflow-x-hidden antialiased selection:bg-memoria-gold selection:text-black">
   <!-- TOMBOL THEME TOGGLE -->
-  <button id="themeToggle" class="fixed top-6 right-6 z-[9000] p-3 rounded-full bg-white/10 backdrop-blur-md border border-memoria-gold/30 text-memoria-gold hover:bg-memoria-gold hover:text-black transition-all duration-300 shadow-lg" aria-label="Ganti Tema">
+  <!-- <button id="themeToggle" class="fixed top-6 right-6 z-[9000] p-3 rounded-full bg-white/10 backdrop-blur-md border border-memoria-gold/30 text-memoria-gold hover:bg-memoria-gold hover:text-black transition-all duration-300 shadow-lg" aria-label="Ganti Tema"> -->
     <!-- Icon Bulan (Mode Gelap) -->
-    <svg id="iconMoon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+    <!-- <svg id="iconMoon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> -->
     <!-- Icon Matahari (Mode Terang) -->
-    <svg id="iconSun" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-  </button>
+    <!-- <svg id="iconSun" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg> -->
+  <!-- </button> -->
   <!-- 1. PRELOADER / TIRAI (CURTAIN EFFECT) -->
   <div id="curtain-container" class="fixed inset-0 z-[9999] flex pointer-events-none">
     <!-- Tirai Kiri -->
@@ -395,9 +395,9 @@
       <!-- Form Container (Glassmorphism) -->
       <div class="bg-memoria-velvet/10 backdrop-blur-md border border-memoria-gold/20 p-8 md:p-12 rounded-2xl shadow-[0_0_50px_rgba(74,4,4,0.3)] reveal">
         
-        <form id="rsvpForm" class="space-y-6">
+                <form id="rsvpForm" class="space-y-6">
           
-          <!-- input nim -->
+          <!-- Input NIM -->
           <div class="relative">
             <label for="nim" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">NIM (Nomor Induk Mahasiswa)</label>
             <input type="number" id="nim" name="nim" required placeholder="Masukkan NIM kamu" 
@@ -411,11 +411,20 @@
               class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base">
           </div>
 
-          <!-- Input Angkatan -->
+          <!-- Select Angkatan -->
           <div class="relative">
             <label for="angkatan" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">Angkatan</label>
-            <input type="text" id="angkatan" name="angkatan" required placeholder="Contoh: 2023" 
-              class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base">
+            <select id="angkatan" name="angkatan" required
+              class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base appearance-none cursor-pointer">
+              <option value="" disabled selected>-- Pilih Angkatan --</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+            </select>
+            <!-- Custom Panah Dropdown -->
+            <div class="absolute right-4 top-[2.4rem] pointer-events-none text-memoria-gold">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
           </div>
 
           <!-- Select Kehadiran -->
@@ -426,7 +435,6 @@
               <option value="" disabled selected>-- Pilih Status --</option>
               <option value="hadir">Hadir</option>
               <option value="tidak">Tidak Hadir</option>
-              <option value="ragu">Masih Ragu</option>
             </select>
             <!-- Custom Panah Dropdown -->
             <div class="absolute right-4 top-[2.4rem] pointer-events-none text-memoria-gold">
@@ -434,16 +442,9 @@
             </div>
           </div>
 
-          <!-- Textarea Pesan -->
-          <div class="relative">
-            <label for="pesan" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">Pesan & Doa (Opsional)</label>
-            <textarea id="pesan" name="pesan" rows="3" placeholder="Tulis pesan dan doa terbaikmu..." 
-              class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base resize-none"></textarea>
-          </div>
-
           <!-- Tombol Submit -->
           <button type="submit" id="submitBtn"
-            class="w-full py-4 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold text-lg tracking-wider uppercase rounded-lg hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex justify-center items-center gap-2">
+            class="w-full py-4 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold text-lg tracking-wider uppercase rounded-lg hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex justify-center items-center gap-2 mt-8">
             <span>Kirim Konfirmasi</span>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
           </button>
@@ -520,7 +521,7 @@
       <div class="w-16 h-[1px] bg-memoria-gold/50 mb-8"></div>
       
       <!-- Credits -->
-      <p class="text-xs text-gray-600 tracking-wider uppercase mb-2">Organized by Nauval Dev</p>
+      <p class="text-xs text-gray-600 tracking-wider uppercase mb-2">Organized by </p>
       <p class="text-xs text-gray-600 tracking-wider uppercase">Hima SIKC &copy; 2026</p>
       
       <!-- Sosmed (Opsional) -->

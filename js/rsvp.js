@@ -44,8 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
       nim: form.nim.value.trim(),          
       nama: form.nama.value.trim(),
       angkatan: form.angkatan.value.trim(),
-      kehadiran: form.kehadiran.value,
-      pesan: form.pesan.value.trim()
+      kehadiran: form.kehadiran.value
     };
 
     // Validasi

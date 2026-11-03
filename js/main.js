@@ -136,9 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
     // --- 6. COUNTDOWN TIMER ---
-  // ⚠️ GANTI TANGGAL DI BAWAH INI SESUAI TANGGAL ACARA MEMORIA ⚠️
+  // ⚠️ UBAH TANGGAL INI SESUAI HARI-H ACARA MEMORIA ⚠️
   // Format: 'YYYY-MM-DDTHH:mm:ss+07:00' (Waktu Indonesia Barat)
-  const eventDate = new Date('2025-12-20T18:00:00+07:00').getTime(); 
+const eventDate = new Date('2026-12-05T18:00:00+07:00').getTime();  
 
   const cdDays = document.getElementById('cd-days');
   const cdHours = document.getElementById('cd-hours');
@@ -146,10 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const cdSecs = document.getElementById('cd-secs');
 
   if (cdDays) {
+    // Jalankan fungsi update setiap 1 detik (1000 milidetik)
     const countdownInterval = setInterval(() => {
       const now = new Date().getTime();
       const distance = eventDate - now;
 
+      // Kalau acara udah lewat
       if (distance < 0) {
         clearInterval(countdownInterval);
         cdDays.innerText = "00";
@@ -159,17 +161,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      // Hitung matematika waktu
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      // Tambahkan angka 0 di depan jika < 10
+      // Tampilkan dengan angka 0 di depan jika < 10
       cdDays.innerText = days < 10 ? "0" + days : days;
       cdHours.innerText = hours < 10 ? "0" + hours : hours;
       cdMins.innerText = minutes < 10 ? "0" + minutes : minutes;
       cdSecs.innerText = seconds < 10 ? "0" + seconds : seconds;
-    }, 1000);
+    }, 1000); // <-- Ini yang bikin dia gerak tiap detik
   }
 
   // --- 7. SCROLL TO TOP BUTTON ---

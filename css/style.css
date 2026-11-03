@@ -33,28 +33,97 @@
     text-align: left !important;
   }
   
-  /* Pindahkan titik/dot ke kiri */
   .timeline-dot {
     left: 20px !important;
     right: auto !important;
     transform: translateX(-50%) !important;
   }
 
-  /* Paksa teks rata kiri di HP */
   .timeline-item .text-right {
     text-align: left !important;
   }
 }
-/* Styling untuk Dropdown Option agar tidak putih polos */
+
+/* Styling untuk Dropdown Option */
 select option {
-  background-color: #1a1a1a; /* Warna gelap */
-  color: #f3e5ab; /* Warna teks gold-light */
+  background-color: #1a1a1a;
+  color: #f3e5ab;
   padding: 10px;
   font-size: 16px;
 }
-
-/* Mengubah warna saat option di-hover (di beberapa browser) */
 select option:hover, select option:focus {
   background-color: #4a0404;
   color: white;
+}
+
+/* ==========================================
+   EFEK TEATER & VELVET RED (HERO REVISI)
+========================================== */
+
+/* 1. Efek Lampu Sorot (Spotlight) */
+.spotlight {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80vw;
+  height: 80vh;
+  background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.15) 0%, rgba(138, 11, 21, 0.4) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: breatheLight 6s ease-in-out infinite alternate;
+}
+
+@keyframes breatheLight {
+  0% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+}
+
+/* 2. Efek Partikel Debu Emas (Bintang) */
+.gold-dust {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #d4af37 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.15;
+  z-index: 0;
+  pointer-events: none;
+  animation: floatDust 20s linear infinite;
+}
+
+@keyframes floatDust {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50px); }
+}
+
+/* 3. Border Bingkai Emas */
+.gold-frame {
+  position: absolute;
+  inset: 2rem;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  pointer-events: none;
+  z-index: 10;
+}
+@media (max-width: 768px) {
+  .gold-frame { inset: 1rem; }
+}
+
+/* Desain Placeholder "Coming Soon" untuk Gallery */
+.gallery-placeholder {
+  background: 
+    linear-gradient(45deg, rgba(74,4,4,0.8) 25%, transparent 25%, transparent 75%, rgba(74,4,4,0.8) 75%, rgba(74,4,4,0.8)), 
+    linear-gradient(45deg, rgba(74,4,4,0.8) 25%, rgba(10,10,10,0.9) 25%, rgba(10,10,10,0.9) 75%, rgba(74,4,4,0.8) 75%, rgba(74,4,4,0.8));
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid rgba(212,175,55,0.2);
+  transition: all 0.5s ease;
+}
+.gallery-placeholder:hover {
+  border-color: rgba(212,175,55,0.6);
+  background-size: 24px 24px;
 }

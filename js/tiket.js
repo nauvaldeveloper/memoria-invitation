@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   const qrOptions = { text: token, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M };
-  new QRCode(document.getElementById('qrcode'), { ...qrOptions, width: 220, height: 220 });
+  new QRCode(document.getElementById('qrcode'), { ...qrOptions, width: 440, height: 440 });
   new QRCode(document.getElementById('qrcodeHiRes'), { ...qrOptions, width: 720, height: 720 });
 
   const banner = document.getElementById('statusBanner');

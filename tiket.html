@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Tiket Memoria</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { 'memoria-black': '#0a0a0a', 'memoria-velvet': '#4a0404', 'memoria-gold': '#d4af37', 'memoria-gold-light': '#f3e5ab' },
+          fontFamily: { 'cinzel': ['Cinzel', 'serif'], 'playfair': ['"Playfair Display"', 'serif'], 'sans': ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-memoria-black text-gray-200 font-sans antialiased min-h-[100dvh] flex items-center justify-center p-4 sm:p-6">
+
+  <main class="w-full max-w-md py-4">
+
+    <!-- Loading -->
+    <div id="loadingState" class="text-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-memoria-gold mx-auto mb-4"></div>
+      <p class="text-gray-400 text-sm">Memuat tiket...</p>
+    </div>
+
+    <!-- Tiket tidak ditemukan -->
+    <div id="errorState" class="hidden text-center py-16">
+      <h1 class="font-cinzel text-2xl text-memoria-gold mb-3">Tiket Tidak Ditemukan</h1>
+      <p id="errorMsg" class="text-gray-400 text-sm mb-8">Link tiket tidak valid atau sudah tidak berlaku.</p>
+      <a href="index.html#rsvp" class="inline-block px-6 py-3 bg-memoria-gold text-black font-bold rounded-lg">Kembali ke RSVP</a>
+    </div>
+
+    <!-- Tiket -->
+    <div id="ticketState" class="hidden">
+      <div id="statusBanner" class="hidden mb-4 px-4 py-3 rounded-xl border border-memoria-gold/40 bg-memoria-velvet/40 text-center text-sm text-memoria-gold-light"></div>
+
+      <div class="rounded-2xl border border-memoria-gold/40 bg-gradient-to-b from-memoria-velvet/60 to-memoria-black overflow-hidden shadow-[0_0_50px_rgba(74,4,4,0.5)]">
+        <div class="text-center px-6 pt-8 pb-6">
+          <p class="text-memoria-gold text-xs tracking-[0.3em] uppercase font-semibold mb-2">Hima SIKC Presents</p>
+          <h1 class="font-cinzel font-bold text-4xl text-memoria-gold tracking-widest">MEMORIA</h1>
+        </div>
+
+        <div class="px-6 flex justify-center">
+          <div id="qrcode" class="bg-white rounded-xl p-3 [&>img]:block [&>canvas]:hidden" role="img" aria-label="QR code tiket"></div>
+        </div>
+        <div id="qrcodeHiRes" class="hidden" aria-hidden="true"></div>
+
+        <div class="text-center px-6 pt-5 pb-6">
+          <p id="ticketName" class="font-playfair text-2xl text-memoria-gold-light break-words"></p>
+          <p id="ticketMeta" class="text-sm text-gray-400 mt-1"></p>
+          <p id="checkedInLabel" class="hidden mt-3 text-sm font-semibold text-green-400">Sudah check-in</p>
+        </div>
+
+        <div class="relative border-t border-dashed border-memoria-gold/40 mx-6"></div>
+
+        <dl id="eventInfo" class="px-6 py-5 space-y-2 text-sm"></dl>
+      </div>
+
+      <p class="text-center text-xs text-gray-400 mt-4">Tunjukkan QR ini ke panitia di pintu masuk.</p>
+
+      <div class="grid grid-cols-2 gap-3 mt-5">
+        <button id="downloadPdfBtn" type="button" class="py-3 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.5)] transition-shadow">Download PDF</button>
+        <button id="downloadPngBtn" type="button" class="py-3 border border-memoria-gold text-memoria-gold font-bold rounded-lg hover:bg-memoria-gold hover:text-black transition-colors">Simpan Gambar</button>
+      </div>
+      <p id="downloadError" class="hidden text-center text-xs text-red-400 mt-3">Gagal membuat file. Coba lagi, atau screenshot tiket ini.</p>
+      <a href="index.html" class="block text-center text-sm text-gray-400 hover:text-memoria-gold mt-5">Kembali ke undangan</a>
+    </div>
+
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/tiket.js"></script>
+</body>
+</html>

@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 6. COUNTDOWN TIMER ---
   // ⚠️ UBAH TANGGAL INI SESUAI HARI-H ACARA MEMORIA ⚠️
   // Format: 'YYYY-MM-DDTHH:mm:ss+07:00' (Waktu Indonesia Barat)
-const eventDate = new Date('2026-12-05T18:00:00+07:00').getTime();  
+const eventDate = new Date('2026-12-05T08:30:00+07:00').getTime();  
 
   const cdDays = document.getElementById('cd-days');
   const cdHours = document.getElementById('cd-hours');
@@ -220,7 +220,7 @@ const eventDate = new Date('2026-12-05T18:00:00+07:00').getTime();
       e.preventDefault();
 
       const shareData = {
-        title: 'Undangan Memoria - Diesnatalis SIKC',
+        title: 'Undangan Memoria - Hima SIKC',
         text: 'Merayakan perjalanan, menciptakan kenangan yang abadi. Yuk hadiri Memoria!',
         url: window.location.href
       };

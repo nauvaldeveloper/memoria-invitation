@@ -127,3 +127,49 @@ select option:hover, select option:focus {
   border-color: rgba(212,175,55,0.6);
   background-size: 24px 24px;
 }
+
+/* Kartu tiket bioskop untuk contoh dress code */
+.movie-ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: 6px;
+  background: linear-gradient(180deg, rgba(74, 4, 4, 0.35), rgba(10, 10, 10, 0.9));
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 1rem;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.movie-ticket:hover {
+  border-color: rgba(212, 175, 55, 0.7);
+  transform: translateY(-4px);
+}
+/* Strip warna khas tiap film, diatur lewat --accent */
+.movie-ticket::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--accent);
+}
+/* Garis sobekan tiket dengan lekukan di kiri dan kanan */
+.movie-ticket-divider {
+  position: relative;
+  margin: 0 1.5rem;
+  border-top: 1px dashed rgba(212, 175, 55, 0.35);
+}
+.movie-ticket-divider::before,
+.movie-ticket-divider::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  background: #0a0a0a;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 50%;
+}
+.movie-ticket-divider::before { left: calc(-1.5rem - 10px); }
+.movie-ticket-divider::after { right: calc(-1.5rem - 10px); }

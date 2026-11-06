@@ -212,7 +212,6 @@ function jsonResponse(obj) {
 function setup() {
   const sheet = getSheet_();
   sheet.getRange(1, COL.TOKEN + 1).setValue('Token');
-  sheet.getRange('B:B').setNumberFormat('@');
-  sheet.getRange('H:H').setNumberFormat('@');
+  SpreadsheetApp.flush();
   Logger.log('Setup selesai. PANITIA_PIN ' + (PropertiesService.getScriptProperties().getProperty('PANITIA_PIN') ? 'sudah' : 'BELUM') + ' diisi.');
 }

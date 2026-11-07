@@ -5,7 +5,7 @@
  * ============================================
  *
  * Kolom sheet:
- * A Timestamp | B NIM | C Nama | D Angkatan | E Kehadiran | F Pesan | G Status Check-In | H Token
+ * A Timestamp | B NIM | C Nama | D Angkatan | E Kehadiran | F Pesan | G Status Check-In | H Token | I Sumber | J Jurusan
  *
  * Persiapan sekali saja:
  * 1. Project Settings > Script Properties: tambah PANITIA_PIN berisi PIN panjang.
@@ -13,8 +13,7 @@
  */
 
 const SHEET_NAME = 'Sheet1';
-const ANGKATAN_VALID = ['2024', '2025', '2026'];
-const COL = { NIM: 1, NAMA: 2, KEHADIRAN: 4, CHECKIN: 6, TOKEN: 7 };
+const COL = { NIM: 1, NAMA: 2, KEHADIRAN: 4, CHECKIN: 6, TOKEN: 7, SUMBER: 8, JURUSAN: 9 };
 
 function doPost(e) {
   try {
@@ -31,6 +30,7 @@ function doPost(e) {
     if (action === 'login') return jsonResponse({ status: 'ok' });
     if (action === 'list') return jsonResponse(handleList_());
     if (action === 'checkin') return jsonResponse(handleCheckIn_(data));
+    if (action === 'walkin') return jsonResponse(handleWalkIn_(data));
 
     return jsonResponse({ status: 'error', message: 'Aksi tidak dikenal' });
   } catch (err) {
@@ -55,21 +55,22 @@ function handleRsvp_(data) {
   const nim = normalizeCell_(data.nim);
   const nama = String(data.nama || '').replace(/\s+/g, ' ').trim();
   const angkatan = normalizeCell_(data.angkatan);
+  const jurusan = normalizeJurusan_(data.jurusan);
   const kehadiran = normalizeCell_(data.kehadiran).toLowerCase();
 
-  if (!/^\d{5,20}$/.test(nim)) return { status: 'error', message: 'NIM tidak valid' };
-  if (!nama || nama.length > 100) return { status: 'error', message: 'Nama tidak valid' };
-  if (ANGKATAN_VALID.indexOf(angkatan) === -1) return { status: 'error', message: 'Angkatan tidak valid' };
+  const invalid = validateParticipant_(nim, nama, angkatan, jurusan);
+  if (invalid) return invalid;
   if (kehadiran !== 'hadir' && kehadiran !== 'tidak') return { status: 'error', message: 'Status kehadiran tidak valid' };
 
   return withLock_(function () {
     const sheet = getSheet_();
     const rows = sheet.getDataRange().getValues();
     const index = findRowIndex_(rows, COL.NIM, nim);
+    ensureHeaders_(sheet, rows);
 
     if (index === -1) {
       const token = kehadiran === 'hadir' ? Utilities.getUuid() : '';
-      sheet.appendRow([new Date(), nim, safeText_(nama), angkatan, kehadiran, safeText_(data.pesan), 'Belum Hadir', token]);
+      sheet.appendRow([new Date(), nim, safeText_(nama), angkatan, kehadiran, safeText_(data.pesan), 'Belum Hadir', token, '', safeText_(jurusan)]);
       return kehadiran === 'hadir'
         ? { status: 'ok', result: 'registered', token: token }
         : { status: 'ok', result: 'declined' };
@@ -79,6 +80,7 @@ function handleRsvp_(data) {
     if (normalizeName_(row[COL.NAMA]) !== normalizeName_(nama)) {
       return { status: 'ok', result: 'name_mismatch' };
     }
+    fillJurusan_(sheet, index, row, jurusan);
 
     const checkedIn = row[COL.CHECKIN] === 'Hadir';
     if (kehadiran === 'tidak' && !checkedIn) {
@@ -130,6 +132,7 @@ function handleList_() {
         nama: String(row[COL.NAMA]),
         nim: normalizeCell_(row[COL.NIM]),
         angkatan: normalizeCell_(row[3]),
+        jurusan: normalizeCell_(row[COL.JURUSAN]),
         kehadiran: normalizeCell_(row[COL.KEHADIRAN]).toLowerCase(),
         checkedIn: row[COL.CHECKIN] === 'Hadir'
       };
@@ -157,6 +160,64 @@ function handleCheckIn_(data) {
     sheet.getRange(index + 1, COL.CHECKIN + 1).setValue('Hadir');
     return { status: 'ok', nama: nama, nim: normalizeCell_(row[COL.NIM]) };
   });
+}
+
+/** Panitia mendaftarkan peserta di tempat, sekaligus mencatatnya hadir. */
+function handleWalkIn_(data) {
+  const nim = normalizeCell_(data.nim);
+  const nama = String(data.nama || '').replace(/\s+/g, ' ').trim();
+  const angkatan = normalizeCell_(data.angkatan);
+  const jurusan = normalizeJurusan_(data.jurusan);
+
+  const invalid = validateParticipant_(nim, nama, angkatan, jurusan);
+  if (invalid) return invalid;
+
+  return withLock_(function () {
+    const sheet = getSheet_();
+    const rows = sheet.getDataRange().getValues();
+    const index = findRowIndex_(rows, COL.NIM, nim);
+    ensureHeaders_(sheet, rows);
+
+    if (index === -1) {
+      sheet.appendRow([new Date(), nim, safeText_(nama), angkatan, 'hadir', '', 'Hadir', Utilities.getUuid(), 'On The Spot', safeText_(jurusan)]);
+      return { status: 'ok', result: 'new', nama: nama, nim: nim };
+    }
+
+    const row = rows[index];
+    const namaTerdaftar = String(row[COL.NAMA]);
+    if (normalizeName_(namaTerdaftar) !== normalizeName_(nama)) {
+      return { status: 'name_mismatch', nama: namaTerdaftar };
+    }
+    fillJurusan_(sheet, index, row, jurusan);
+    if (row[COL.CHECKIN] === 'Hadir') return { status: 'already', nama: namaTerdaftar };
+
+    sheet.getRange(index + 1, COL.KEHADIRAN + 1).setValue('hadir');
+    sheet.getRange(index + 1, COL.CHECKIN + 1).setValue('Hadir');
+    return { status: 'ok', result: 'existing', nama: namaTerdaftar, nim: nim };
+  });
+}
+
+function validateParticipant_(nim, nama, angkatan, jurusan) {
+  if (!/^\d{5,20}$/.test(nim)) return { status: 'error', message: 'NIM tidak valid' };
+  if (!nama || nama.length > 100) return { status: 'error', message: 'Nama tidak valid' };
+  if (!/^20\d{2}$/.test(angkatan)) return { status: 'error', message: 'Angkatan harus berupa tahun, misalnya 2024' };
+  if (!jurusan || jurusan.length > 100) return { status: 'error', message: 'Jurusan wajib diisi' };
+  return null;
+}
+
+/** Huruf besar dan spasi rapi membuat isian yang sama lebih mudah direkap. */
+function normalizeJurusan_(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+function ensureHeaders_(sheet, rows) {
+  if (rows[0][COL.SUMBER] !== 'Sumber') sheet.getRange(1, COL.SUMBER + 1).setValue('Sumber');
+  if (rows[0][COL.JURUSAN] !== 'Jurusan') sheet.getRange(1, COL.JURUSAN + 1).setValue('Jurusan');
+}
+
+/** Peserta lama belum punya jurusan, jadi dilengkapi saat mendaftar ulang. */
+function fillJurusan_(sheet, index, row, jurusan) {
+  if (!normalizeCell_(row[COL.JURUSAN])) sheet.getRange(index + 1, COL.JURUSAN + 1).setValue(safeText_(jurusan));
 }
 
 /** Mencegah dua proses menulis ke sheet pada waktu yang sama. */

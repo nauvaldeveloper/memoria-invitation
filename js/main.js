@@ -135,7 +135,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-    // --- 6. COUNTDOWN TIMER ---
+    // --- 5B. CAROUSEL DRESS CODE ---
+  const dressCarousel = document.getElementById('dressCarousel');
+  const dressPrev = document.getElementById('dressPrev');
+  const dressNext = document.getElementById('dressNext');
+  const dressCount = document.getElementById('dressCount');
+
+  if (dressCarousel && dressPrev && dressNext && dressCount) {
+    const cards = dressCarousel.children;
+
+    const getLayout = () => {
+      const gap = parseFloat(getComputedStyle(dressCarousel).columnGap) || 0;
+      const step = cards[0].getBoundingClientRect().width + gap;
+      return { gap, step, visible: Math.max(1, Math.round((dressCarousel.clientWidth + gap) / step)) };
+    };
+
+    const updateDressNav = () => {
+      const { step, visible } = getLayout();
+      const first = Math.round(dressCarousel.scrollLeft / step);
+      const last = Math.min(cards.length, first + visible);
+      dressCount.textContent = `${first + 1}–${last} dari ${cards.length}`;
+      dressPrev.disabled = dressCarousel.scrollLeft <= 1;
+      dressNext.disabled = dressCarousel.scrollLeft + dressCarousel.clientWidth >= dressCarousel.scrollWidth - 1;
+    };
+
+    const slideDress = (direction) => {
+      const { gap } = getLayout();
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      dressCarousel.scrollBy({ left: direction * (dressCarousel.clientWidth + gap), behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
+
+    dressPrev.addEventListener('click', () => slideDress(-1));
+    dressNext.addEventListener('click', () => slideDress(1));
+    dressCarousel.addEventListener('scroll', updateDressNav, { passive: true });
+    window.addEventListener('resize', updateDressNav);
+    updateDressNav();
+  }
+
+  // --- 6. COUNTDOWN TIMER ---
   // ⚠️ UBAH TANGGAL INI SESUAI HARI-H ACARA MEMORIA ⚠️
   // Format: 'YYYY-MM-DDTHH:mm:ss+07:00' (Waktu Indonesia Barat)
 const eventDate = new Date('2026-12-05T08:30:00+07:00').getTime();  

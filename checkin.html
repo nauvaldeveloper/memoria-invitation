@@ -2,139 +2,177 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <!-- Hapus maximum-scale=1.0 agar user bisa zoom jika perlu -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex" />
   <title>Panitia - Check-In Memoria</title>
-  
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Library QR Scanner -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          colors: { 'memoria-black': '#0a0a0a', 'memoria-velvet': '#4a0404', 'memoria-gold': '#d4af37' },
+          colors: { 'memoria-black': '#0a0a0a', 'memoria-velvet': '#4a0404', 'memoria-gold': '#d4af37', 'memoria-gold-light': '#f3e5ab' },
           fontFamily: { 'sans': ['Inter', 'sans-serif'], 'cinzel': ['Cinzel', 'serif'] }
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  
-    <style>
-    /* 1. Pengaturan Kotak Kamera */
-    #reader {
-      width: 100%;
-      max-width: 400px; 
-      min-height: 350px; /* Sedikit lebih tinggi agar proporsional */
-      margin: 0 auto;
-      border-radius: 1rem;
-      overflow: hidden;
-      border: 2px solid #d4af37;
-      background: #111;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
 
-    /* 2. Paksa Video Kamera Memenuhi Kotak */
+  <style>
+    /* Kotak kamera */
+    #reader {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      border-radius: 1rem;
+      background: #111;
+    }
     #reader video {
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important;
-      border-radius: 1rem;
     }
+    #reader__dashboard { display: none !important; }
 
-    /* 3. Styling Tombol Bawaan (Kalau muncul) */
-    #reader__dashboard_section_csr button {
-      background-color: #d4af37 !important;
-      color: black !important;
-      border: none !important;
-      padding: 8px 16px !important;
-      border-radius: 8px !important;
-      font-weight: bold !important;
-      margin-top: 10px !important;
+    /* Input form yang seragam */
+    .field {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 1rem;
+      background: #171717;
+      border: 1px solid #404040;
+      border-radius: 0.75rem;
+      transition: border-color 0.2s ease;
     }
-    #reader__dashboard_section_csr {
-      padding: 10px !important;
+    .field:focus {
+      outline: none;
+      border-color: #d4af37;
+      box-shadow: 0 0 0 1px #d4af37;
     }
-
-    /* 4. Sembunyikan UI Bawaan Library yang Bikin Berantakan */
-    #reader__dashboard {
-      display: none !important;
-    }
-  </style>
+    .field::placeholder { color: #737373; }
+      </style>
 </head>
 <body class="bg-memoria-black text-white font-sans antialiased h-[100dvh] flex flex-col overflow-hidden">
 
   <!-- LOGIN PANITIA -->
   <div id="pinGate" class="fixed inset-0 z-[60] hidden items-center justify-center bg-memoria-black p-6">
     <form id="pinForm" class="w-full max-w-sm text-center">
-      <h1 class="font-cinzel text-2xl text-memoria-gold tracking-widest mb-1">MEMORIA</h1>
-      <p class="text-sm text-gray-400 mb-6">Masukkan PIN panitia</p>
+      <h1 class="font-cinzel text-3xl text-memoria-gold tracking-widest mb-1">MEMORIA</h1>
+      <p class="text-sm text-gray-400 mb-8">Masukkan PIN panitia untuk melanjutkan</p>
       <label for="pinInput" class="sr-only">PIN panitia</label>
-      <input type="password" id="pinInput" autocomplete="off" class="w-full bg-gray-900 border border-memoria-gold/50 rounded-xl px-4 py-3 text-white text-center focus:outline-none focus:border-memoria-gold">
+      <input type="password" id="pinInput" autocomplete="off" placeholder="PIN" class="field text-center">
       <p id="pinError" class="text-sm text-red-400 min-h-[1.5rem] mt-2" role="alert"></p>
-      <button id="pinSubmit" type="submit" class="w-full mt-2 py-3 bg-memoria-gold text-black font-bold rounded-xl disabled:opacity-60">Masuk</button>
+      <button id="pinSubmit" type="submit" class="w-full mt-2 py-3 bg-memoria-gold text-black font-bold rounded-xl hover:bg-yellow-500 transition-colors disabled:opacity-60">Masuk</button>
     </form>
   </div>
 
-  <!-- HEADER PANITIA -->
-  <header class="bg-memoria-velvet border-b border-memoria-gold/30 p-4 flex justify-between items-center shrink-0 z-20 shadow-lg">
-    <div>
-      <h1 class="font-cinzel text-xl text-memoria-gold tracking-widest">MEMORIA</h1>
-      <p class="text-xs text-gray-300">Panitia Check-In</p>
-    </div>
-    <div class="text-right">
-      <p class="text-[10px] text-gray-400 uppercase tracking-wider">Total Hadir</p>
-      <p id="totalHadir" class="text-2xl font-bold text-memoria-gold leading-none">0</p>
+  <!-- HEADER -->
+  <header class="shrink-0 bg-gradient-to-b from-memoria-velvet to-[#2a0505] border-b border-memoria-gold/30 pt-[env(safe-area-inset-top)]">
+    <div class="w-full max-w-lg mx-auto px-4 py-3">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h1 class="font-cinzel text-xl text-memoria-gold tracking-widest leading-tight">MEMORIA</h1>
+          <p id="syncStatus" class="text-xs text-gray-300 truncate" role="status">Memuat data...</p>
+        </div>
+        <button id="logoutBtn" type="button" class="shrink-0 px-3 py-1.5 text-xs font-semibold text-gray-300 border border-white/20 rounded-lg hover:text-white hover:border-white/50 transition-colors">Keluar</button>
+      </div>
+
+      <div class="mt-3">
+        <div class="flex items-baseline justify-between mb-1.5">
+          <span class="text-xs text-gray-300">Peserta hadir</span>
+          <span class="text-sm tabular-nums"><span id="totalHadir" class="text-xl font-bold text-memoria-gold">0</span> <span class="text-gray-300">/ <span id="totalTerdaftar">0</span></span></span>
+        </div>
+        <div class="h-1.5 rounded-full bg-black/40 overflow-hidden">
+          <div id="progressBar" class="h-full w-0 rounded-full bg-memoria-gold transition-all duration-500"></div>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- TOMBOL SWITCH TAB -->
-  <div class="flex p-3 gap-2 bg-memoria-black z-20 border-b border-gray-800 shrink-0">
-    <button id="tabScanBtn" class="flex-1 py-2.5 bg-memoria-gold text-black font-bold rounded-lg transition-colors shadow-[0_0_15px_rgba(212,175,55,0.3)]">📷 Scan QR</button>
-    <button id="tabManualBtn" class="flex-1 py-2.5 bg-gray-800 text-gray-300 font-bold rounded-lg transition-colors">🔍 Cari Nama</button>
-  </div>
+  <!-- KONTEN -->
+  <main class="flex-1 min-h-0 overflow-y-auto">
+    <div class="w-full max-w-lg mx-auto p-4">
 
-  <!-- AREA KONTEN UTAMA -->
-  <main class="flex-1 relative bg-black overflow-hidden">
-    
-    <!-- Kontainer Scan QR -->
-    <div id="scanContainer" class="absolute inset-0 flex flex-col items-center justify-start p-4 pt-8 overflow-y-auto">
-      <div id="reader"></div>
-      <p class="text-center text-sm text-gray-400 mt-4">Arahkan kamera ke QR Code peserta.</p>
-      <p class="text-center text-xs text-red-400 mt-2 max-w-xs">Pastikan web dibuka via <b>HTTPS</b> agar kamera bisa diakses browser.</p>
+      <!-- Scan QR -->
+      <section id="scanView" aria-labelledby="scanTitle">
+        <h2 id="scanTitle" class="text-lg font-semibold mb-1">Scan Tiket</h2>
+        <p class="text-sm text-gray-400 mb-4">Arahkan kamera ke QR tiket peserta.</p>
+        <div id="reader"></div>
+      </section>
+
+      <!-- Cari nama -->
+      <section id="searchView" class="hidden" aria-labelledby="searchTitle">
+        <h2 id="searchTitle" class="text-lg font-semibold mb-1">Cari Peserta</h2>
+        <p class="text-sm text-gray-400 mb-4">Untuk peserta yang QR-nya tidak bisa discan.</p>
+        <label for="searchInput" class="sr-only">Nama atau NIM</label>
+        <input type="search" id="searchInput" autocomplete="off" placeholder="Ketik nama atau NIM" class="field mb-4">
+        <div id="searchResults" class="space-y-3"></div>
+      </section>
+
+      <!-- Daftar manual -->
+      <section id="manualView" class="hidden" aria-labelledby="manualTitle">
+        <h2 id="manualTitle" class="text-lg font-semibold mb-1">Daftar Manual</h2>
+        <p class="text-sm text-gray-400 mb-4">Untuk peserta yang belum daftar. Peserta langsung tercatat hadir.</p>
+        <form id="manualForm" class="space-y-4" novalidate>
+          <div>
+            <label for="manualNim" class="block text-sm font-medium text-gray-300 mb-1.5">NIM</label>
+            <input type="text" id="manualNim" inputmode="numeric" autocomplete="off" placeholder="Contoh: 1202240001" class="field">
+          </div>
+          <div>
+            <label for="manualNama" class="block text-sm font-medium text-gray-300 mb-1.5">Nama lengkap</label>
+            <input type="text" id="manualNama" autocomplete="off" maxlength="100" placeholder="Sesuai KTM" class="field">
+          </div>
+          <div>
+            <label for="manualAngkatan" class="block text-sm font-medium text-gray-300 mb-1.5">Angkatan</label>
+            <input type="text" id="manualAngkatan" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Contoh: 2024" class="field">
+          </div>
+          <div>
+            <label for="manualJurusan" class="block text-sm font-medium text-gray-300 mb-1.5">Jurusan</label>
+            <input type="text" id="manualJurusan" autocomplete="off" maxlength="100" placeholder="D4 SISTEM INFORMASI KOTA CERDAS" class="field placeholder:text-xs sm:placeholder:text-base">
+          </div>
+          <p id="manualError" class="text-sm text-red-400 min-h-[1.25rem]" role="alert"></p>
+          <button id="manualSubmit" type="submit" class="w-full py-3 bg-memoria-gold text-black font-bold rounded-xl hover:bg-yellow-500 transition-colors disabled:opacity-60">Daftar &amp; Check-In</button>
+        </form>
+      </section>
+
     </div>
-
-    <!-- Kontainer Manual Search (Tersembunyi dulu) -->
-    <div id="manualContainer" class="absolute inset-0 hidden flex-col p-4 overflow-y-auto">
-      <input type="text" id="searchInput" placeholder="Ketik Nama atau NIM..." 
-        class="w-full bg-gray-900 border border-memoria-gold/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-memoria-gold mb-4 sticky top-0 z-10 shadow-md">
-      
-      <div id="searchResults" class="flex-1 space-y-3 pb-10">
-        <!-- Hasil pencarian akan muncul di sini -->
-        <p class="text-center text-gray-500 text-sm mt-10">Ketik nama atau NIM untuk mencari.</p>
-      </div>
-    </div>
-
   </main>
 
-  <!-- NOTIFIKASI OVERLAY (Untuk Scan Berhasil/Gagal) -->
-  <div id="scanOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-    <div class="bg-black/90 absolute inset-0 backdrop-blur-sm"></div>
-    
-    <div class="relative z-10 text-center p-8 bg-gray-900 border-2 rounded-2xl max-w-sm w-[90%] shadow-2xl" id="overlayContent">
-      <div id="overlayIcon" class="text-6xl mb-4">✅</div>
-      <h2 id="overlayTitle" class="text-2xl font-bold mb-2">Berhasil!</h2>
-      <p id="overlayDesc" class="text-gray-300">Nama Peserta</p>
-      
-      <!-- Tombol Lanjut (Disembunyikan saat loading) -->
-      <button id="closeOverlayBtn" class="mt-8 px-8 py-3 bg-white text-black font-bold rounded-full w-full transition-transform hover:scale-105 active:scale-95">Lanjut Scan</button>
+  <!-- NAVIGASI BAWAH -->
+  <nav class="shrink-0 bg-[#111] border-t border-white/10 pb-[env(safe-area-inset-bottom)]" aria-label="Menu check-in">
+    <div class="w-full max-w-lg mx-auto grid grid-cols-3">
+      <button id="tabScanBtn" type="button" class="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M4 12h16"/></svg>
+        Scan QR
+      </button>
+      <button id="tabSearchBtn" type="button" class="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/></svg>
+        Cari Nama
+      </button>
+      <button id="tabManualBtn" type="button" class="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 003 17.5V19M12.5 7.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0zM18.5 8v6M15.5 11h6"/></svg>
+        Daftar Manual
+      </button>
+    </div>
+  </nav>
+
+  <!-- HASIL -->
+  <div id="scanOverlay" class="fixed inset-0 z-50 hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+    <div class="absolute inset-0 bg-black/90 backdrop-blur-sm"></div>
+    <div id="overlayContent" class="relative z-10 w-full max-w-sm p-8 text-center bg-neutral-900 border-2 rounded-2xl shadow-2xl">
+      <div id="overlayIcon" class="flex justify-center mb-4"></div>
+      <h2 id="overlayTitle" class="text-2xl font-bold"></h2>
+      <p id="overlayDesc" class="text-gray-300 text-lg mt-2 break-words"></p>
+      <button id="closeOverlayBtn" type="button" class="mt-8 w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors">Lanjut</button>
     </div>
   </div>
 

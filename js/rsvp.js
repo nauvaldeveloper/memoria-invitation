@@ -43,11 +43,18 @@ document.addEventListener('DOMContentLoaded', () => {
       nim: form.nim.value.trim(),
       nama: form.nama.value.trim(),
       angkatan: form.angkatan.value.trim(),
+      jurusan: form.jurusan.value.replace(/\s+/g, ' ').trim(),
       kehadiran: form.kehadiran.value
     };
 
-    if (!formData.nim || !formData.nama || !formData.angkatan || !formData.kehadiran) {
+    if (!formData.nim || !formData.nama || !formData.angkatan || !formData.jurusan || !formData.kehadiran) {
       showToast('⚠ Mohon lengkapi semua field wajib!', true);
+      return;
+    }
+
+    if (!/^20\d{2}$/.test(formData.angkatan)) {
+      showToast('⚠ Angkatan harus berupa tahun, misalnya 2024.', true);
+      form.angkatan.focus();
       return;
     }
 

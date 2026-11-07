@@ -3,8 +3,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzCKASZB29FgJdCbgjImBDS
 
 // Info yang tampil di tiket. Tanggal dan lokasi muncul otomatis setelah diisi.
 const EVENT_INFO = {
-  tanggal: '',
-  lokasi: '',
+  tanggal: 'Sabtu, 5 Desember 2026',
+  lokasi: 'Aula FEB, Telkom University',
   openGate: '08.30–09.30 WIB',
   dressCode: 'Be a Movie Character'
 };

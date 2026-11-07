@@ -101,9 +101,12 @@
         <span class="absolute inset-0 text-black/60 blur-lg -z-10 translate-y-2">MEMORIA</span>
       </h1>
       
-      <p class="font-playfair italic text-lg md:text-2xl text-gray-200 max-w-2xl mb-12 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+      <p class="font-playfair italic text-lg md:text-2xl text-gray-200 max-w-2xl mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
         "Merayakan perjalanan, menciptakan kenangan yang abadi."
       </p>
+
+      <p class="flex items-center justify-center gap-2 text-memoria-gold-light text-sm md:text-base font-medium tracking-wide mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3v3m8-3v3M4 9.5h16M5.5 5h13A1.5 1.5 0 0120 6.5v12a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-12A1.5 1.5 0 015.5 5z"/></svg><span>Sabtu, 5 Desember 2026</span></p>
+      <p class="flex items-center justify-center gap-2 text-memoria-gold-light text-sm md:text-base font-medium tracking-wide mb-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Aula FEB, Telkom University</span></p>
 
       <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
         <a href="#about" class="px-10 py-4 bg-gradient-to-r from-memoria-gold to-[#b8860b] text-black font-bold tracking-widest uppercase text-sm rounded-sm hover:scale-105 hover:shadow-[0_0_30px_rgba(212,175,55,0.8)] transition-all duration-300">
@@ -308,66 +311,66 @@
       </div>
 
       <div class="mb-24 reveal">
-        <!-- Mobile: geser ke samping. Desktop: grid. -->
-        <div class="flex gap-5 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 pb-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible">
+        <!-- Carousel: HP satu kartu, tablet dua, desktop tiga -->
+        <div id="dressCarousel" tabindex="0" role="region" aria-label="Inspirasi kostum karakter film" class="no-scrollbar flex gap-5 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 py-1 md:mx-0 md:px-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-memoria-gold rounded-2xl">
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #7f1d1d, #d4af37);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #7f1d1d, #d4af37);">
             <img src="assets/dresscode/harry-potter.jpg" alt="Contoh kostum Harry Potter" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Harry Potter</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Jubah hitam, syal merah-emas, dasi bergaris, dan tongkat sihir.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #78350f, #e7e5e4);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #78350f, #e7e5e4);">
             <img src="assets/dresscode/pirates.jpg" alt="Contoh kostum Pirates of the Caribbean" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Pirates of the Caribbean</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Topi bajak laut, kemeja putih, rompi cokelat, dan sabuk.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #4d5b2a, #d6d3d1);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #4d5b2a, #d6d3d1);">
             <img src="assets/dresscode/top-gun.jpg" alt="Contoh kostum Top Gun" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Top Gun</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Jaket pilot hijau army, kaus putih, dan kacamata hitam.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #6b21a8, #eab308);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #6b21a8, #eab308);">
             <img src="assets/dresscode/joker.jpg" alt="Contoh kostum Joker" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Joker</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Setelan ungu, rompi kuning, dan riasan wajah khas Joker.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #b91c1c, #eab308);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #b91c1c, #eab308);">
             <img src="assets/dresscode/iron-man.jpg" alt="Contoh kostum Iron Man" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Iron Man</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Kostum armor merah dan emas.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #78350f, #a8a29e);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #78350f, #a8a29e);">
             <img src="assets/dresscode/sherlock.jpg" alt="Contoh kostum Sherlock Holmes" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Sherlock Holmes</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Mantel cokelat, topi detektif, dan kaca pembesar.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #a8a29e, #f9fafb);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #a8a29e, #f9fafb);">
             <img src="assets/dresscode/leia.jpg" alt="Contoh kostum Leia (Star Wars)" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Leia (Star Wars)</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Gaun putih, ikat pinggang, dan rambut cepol di kedua sisi.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #dc2626, #eab308);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #dc2626, #eab308);">
             <img src="assets/dresscode/luffy.jpg" alt="Contoh kostum Luffy (One Piece)" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Luffy (One Piece)</h4>
             <div class="movie-ticket-divider"></div>
             <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Topi jerami dan kemeja merah.</p>
           </article>
 
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-auto snap-center" style="--accent: linear-gradient(90deg, #38bdf8, #e0f2fe);">
+          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #38bdf8, #e0f2fe);">
             <img src="assets/dresscode/elsa.jpg" alt="Contoh kostum Elsa (Frozen)" loading="lazy" class="w-full aspect-square object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Elsa (Frozen)</h4>
             <div class="movie-ticket-divider"></div>
@@ -376,6 +379,15 @@
 
         </div>
         <p class="text-center text-xs text-gray-500 mt-4 md:hidden">Geser untuk melihat inspirasi lainnya</p>
+        <div class="hidden md:flex items-center justify-center gap-5 mt-6">
+          <button id="dressPrev" type="button" aria-label="Kostum sebelumnya" class="w-11 h-11 flex items-center justify-center rounded-full border border-memoria-gold/60 text-memoria-gold hover:bg-memoria-gold hover:text-black transition-colors disabled:opacity-30 disabled:pointer-events-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <p id="dressCount" class="min-w-[6rem] text-center text-sm text-gray-400 tabular-nums" aria-live="polite"></p>
+          <button id="dressNext" type="button" aria-label="Kostum berikutnya" class="w-11 h-11 flex items-center justify-center rounded-full border border-memoria-gold/60 text-memoria-gold hover:bg-memoria-gold hover:text-black transition-colors disabled:opacity-30 disabled:pointer-events-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
 
       <!-- Do's & Don'ts: aturan selain pakaian masih perlu dikonfirmasi panitia -->
@@ -504,7 +516,7 @@
         <p class="text-gray-400 max-w-xl mx-auto">Konfirmasikan kehadiranmu untuk menjadi bagian dari kenangan indah Memoria.</p>
       </div>
 
-      <div class="bg-memoria-velvet/10 backdrop-blur-md border border-memoria-gold/20 p-8 md:p-12 rounded-2xl shadow-[0_0_50px_rgba(74,4,4,0.3)] reveal">
+      <div class="bg-memoria-velvet/10 backdrop-blur-md border border-memoria-gold/20 p-5 sm:p-8 md:p-12 rounded-2xl shadow-[0_0_50px_rgba(74,4,4,0.3)] reveal">
         <form id="rsvpForm" class="space-y-6">
           <div class="relative">
             <label for="nim" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">NIM (Nomor Induk Mahasiswa)</label>
@@ -518,15 +530,12 @@
 
           <div class="relative">
             <label for="angkatan" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">Angkatan</label>
-            <select id="angkatan" name="angkatan" required class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base appearance-none cursor-pointer">
-              <option value="" disabled selected>-- Pilih Angkatan --</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026">2026</option>
-            </select>
-            <div class="absolute right-4 top-[2.4rem] pointer-events-none text-memoria-gold">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
+            <input type="text" id="angkatan" name="angkatan" required inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Contoh: 2024" class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base">
+          </div>
+
+          <div class="relative">
+            <label for="jurusan" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">Jurusan</label>
+            <input type="text" id="jurusan" name="jurusan" required maxlength="100" autocomplete="off" placeholder="D4 SISTEM INFORMASI KOTA CERDAS" class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base placeholder:text-xs sm:placeholder:text-base">
           </div>
 
           <div class="relative">
@@ -562,6 +571,8 @@
       <div class="reveal mb-10">
         <h2 class="font-cinzel text-2xl md:text-4xl text-memoria-gold tracking-widest uppercase drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]">The Countdown Begins</h2>
         <p class="text-gray-400 mt-2 font-playfair italic">Menuju hari penuh kenangan</p>
+        <p class="flex items-center justify-center gap-2 text-memoria-gold-light text-sm mt-3"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3v3m8-3v3M4 9.5h16M5.5 5h13A1.5 1.5 0 0120 6.5v12a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-12A1.5 1.5 0 015.5 5z"/></svg><span>Sabtu, 5 Desember 2026</span></p>
+        <p class="flex items-center justify-center gap-2 text-memoria-gold-light text-sm mt-1"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Aula FEB, Telkom University</span></p>
       </div>
 
       <div class="grid grid-cols-4 gap-3 md:gap-6 max-w-2xl mx-auto reveal">

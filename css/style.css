@@ -173,3 +173,11 @@ select option:hover, select option:focus {
 }
 .movie-ticket-divider::before { left: calc(-1.5rem - 10px); }
 .movie-ticket-divider::after { right: calc(-1.5rem - 10px); }
+
+/* Carousel tanpa scrollbar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

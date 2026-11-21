@@ -142,19 +142,6 @@
             <label for="guestNama" class="block text-sm font-medium text-gray-300 mb-1.5">Nama lengkap tamu</label>
             <input type="text" id="guestNama" autocomplete="off" maxlength="100" placeholder="Sesuai kartu identitas" class="field">
           </div>
-          <div>
-            <label for="guestAsal" class="block text-sm font-medium text-gray-300 mb-1.5">Asal tamu</label>
-            <select id="guestAsal" class="field">
-              <option value="" selected disabled>Pilih asal</option>
-              <option value="telkom">Mahasiswa Telkom (prodi lain)</option>
-              <option value="kampus_lain">Mahasiswa kampus lain</option>
-              <option value="umum">Umum</option>
-            </select>
-          </div>
-          <div id="guestInstansiWrap" class="hidden">
-            <label for="guestInstansi" id="guestInstansiLabel" class="block text-sm font-medium text-gray-300 mb-1.5">Nama kampus</label>
-            <input type="text" id="guestInstansi" autocomplete="off" maxlength="100" class="field">
-          </div>
           <p id="guestError" class="text-sm text-red-400 min-h-[1.25rem]" role="alert"></p>
           <button id="guestSubmit" type="submit" class="w-full py-3 bg-memoria-gold text-black font-bold rounded-xl hover:bg-yellow-500 transition-colors disabled:opacity-60">Daftarkan Tamu &amp; Check-In</button>
         </form>
@@ -174,7 +161,8 @@
           </div>
           <div>
             <label for="manualJurusan" class="block text-sm font-medium text-gray-300 mb-1.5">Jurusan</label>
-            <input type="text" id="manualJurusan" autocomplete="off" maxlength="100" placeholder="D4 SISTEM INFORMASI KOTA CERDAS" class="field placeholder:text-xs sm:placeholder:text-base">
+            <input type="text" id="manualJurusan" value="D4 SISTEM INFORMASI KOTA CERDAS" readonly class="field text-sm sm:text-base text-gray-400 bg-white/5 cursor-not-allowed">
+            <p class="text-xs text-gray-500 mt-1.5">Pendaftar khusus mahasiswa SIKC. Teman dari luar SIKC didaftarkan di tab Tamu.</p>
           </div>
           <p id="manualError" class="text-sm text-red-400 min-h-[1.25rem]" role="alert"></p>
           <button id="manualSubmit" type="submit" class="w-full py-3 bg-memoria-gold text-black font-bold rounded-xl hover:bg-yellow-500 transition-colors disabled:opacity-60">Daftar &amp; Check-In</button>

@@ -8,8 +8,9 @@
  * A Timestamp | B NIM | C Nama | D Angkatan | E Kehadiran | F Pesan | G Status Check-In | H Token
  * I Sumber | J Jurusan | K Kategori | L Pengundang (NIM) | M Asal | N Instansi | O ID Tamu
  *
- * Kategori "Mahasiswa" = pendaftar ber-NIM. Kategori "Tamu" = teman yang diajak (tanpa batas per NIM),
- * kolom NIM-nya kosong, NIM pengundangnya di kolom L, dan tiap tamu punya ID sendiri di kolom O.
+ * Kategori "Mahasiswa" = pendaftar ber-NIM, selalu jurusan D4 SIKC. Kategori "Tamu" = teman yang diajak
+ * (tanpa batas per NIM, cukup nama), kolom NIM-nya kosong, NIM pengundangnya di kolom L,
+ * dan tiap tamu punya ID sendiri di kolom O. Kolom M (Asal) dan N (Instansi) saat ini tidak diisi.
  *
  * Token tiket pendaftar sekaligus menjadi kunci untuk mengelola teman dan kehadirannya.
  *
@@ -26,6 +27,8 @@ const COL = {
 const HEADERS = { 8: 'Sumber', 9: 'Jurusan', 10: 'Kategori', 11: 'Pengundang (NIM)', 12: 'Asal', 13: 'Instansi', 14: 'ID Tamu' };
 const ASAL_TAMU = { telkom: 'Mahasiswa Telkom', kampus_lain: 'Mahasiswa kampus lain', umum: 'Umum' };
 const MAX_GUESTS_PER_REQUEST = 20;
+// Pendaftar utama selalu mahasiswa SIKC; isian jurusan dari form diabaikan.
+const JURUSAN_PENDAFTAR = 'D4 SISTEM INFORMASI KOTA CERDAS';
 
 function doPost(e) {
   try {
@@ -75,7 +78,7 @@ function handleRsvp_(data) {
   const nim = normalizeCell_(data.nim);
   const nama = String(data.nama || '').replace(/\s+/g, ' ').trim();
   const angkatan = normalizeCell_(data.angkatan);
-  const jurusan = normalizeJurusan_(data.jurusan);
+  const jurusan = JURUSAN_PENDAFTAR;
   const kehadiran = normalizeCell_(data.kehadiran).toLowerCase();
 
   const invalid = validateParticipant_(nim, nama, angkatan, jurusan);
@@ -334,7 +337,7 @@ function handleWalkIn_(data) {
   const nim = normalizeCell_(data.nim);
   const nama = String(data.nama || '').replace(/\s+/g, ' ').trim();
   const angkatan = normalizeCell_(data.angkatan);
-  const jurusan = normalizeJurusan_(data.jurusan);
+  const jurusan = JURUSAN_PENDAFTAR;
 
   const invalid = validateParticipant_(nim, nama, angkatan, jurusan);
   if (invalid) return invalid;
@@ -412,16 +415,17 @@ function validateParticipant_(nim, nama, angkatan, jurusan) {
   return null;
 }
 
-/** Data satu teman: nama wajib; asal telkom/kampus_lain/umum; nama kampus wajib untuk kampus_lain. */
+/**
+ * Data satu teman: cukup nama. Asal dan instansi opsional (tidak ditanyakan di form saat ini),
+ * tetap diterima kalau dikirim supaya mudah diaktifkan lagi nanti.
+ */
 function parseGuest_(value) {
   const nama = String((value && value.nama) || '').replace(/\s+/g, ' ').trim();
-  const asal = normalizeCell_(value && value.asal).toLowerCase();
-  const instansi = String((value && value.instansi) || '').replace(/\s+/g, ' ').trim();
+  const asalRaw = normalizeCell_(value && value.asal).toLowerCase();
+  const asal = ASAL_TAMU[asalRaw] ? asalRaw : '';
+  const instansi = String((value && value.instansi) || '').replace(/\s+/g, ' ').trim().slice(0, 100);
   if (!nama || nama.length > 100) return { error: 'Nama teman wajib diisi' };
-  if (!ASAL_TAMU[asal]) return { error: 'Asal teman tidak valid' };
-  if (asal === 'kampus_lain' && !instansi) return { error: 'Nama kampus teman wajib diisi' };
-  if (instansi.length > 100) return { error: 'Nama instansi terlalu panjang' };
-  return { nama: nama, asal: asal, instansi: asal === 'telkom' ? '' : instansi };
+  return { nama: nama, asal: asal, instansi: asal && asal !== 'telkom' ? instansi : '' };
 }
 
 /** Daftar teman (array, atau satu objek). Nama yang sama dalam satu kiriman hanya dihitung sekali. */

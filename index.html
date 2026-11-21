@@ -531,7 +531,11 @@
 
           <div class="relative">
             <label for="jurusan" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">Jurusan</label>
-            <input type="text" id="jurusan" name="jurusan" required maxlength="100" autocomplete="off" placeholder="D4 SISTEM INFORMASI KOTA CERDAS" class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold transition-all duration-300 text-base placeholder:text-xs sm:placeholder:text-base">
+            <div class="relative">
+              <input type="text" id="jurusan" name="jurusan" value="D4 SISTEM INFORMASI KOTA CERDAS" readonly aria-describedby="jurusanNote" class="w-full bg-white/5 border border-memoria-gold/20 rounded-lg pl-4 pr-11 py-3 text-gray-300 text-sm sm:text-base cursor-not-allowed focus:outline-none">
+              <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-memoria-gold/70 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z"/></svg>
+            </div>
+            <p id="jurusanNote" class="text-xs text-gray-500 mt-2">Pendaftar khusus mahasiswa SIKC. Teman dari jurusan atau kampus lain bisa diajak lewat "Ajak teman".</p>
           </div>
 
           <div class="relative">
@@ -556,8 +560,9 @@
               </span>
             </label>
 
-            <div id="guestFields" class="hidden mt-5 space-y-4">
-              <div id="guestList" class="space-y-4"></div>
+            <div id="guestFields" class="hidden mt-5 space-y-3">
+              <p class="text-memoria-gold text-xs tracking-widest uppercase font-semibold">Nama Lengkap Teman</p>
+              <div id="guestList" class="space-y-3"></div>
               <button type="button" id="addGuestBtn" class="w-full py-2.5 border border-dashed border-memoria-gold/50 text-memoria-gold text-sm font-semibold rounded-lg hover:bg-memoria-gold/10 transition-colors">+ Tambah teman lagi</button>
               <p class="text-xs text-gray-500 leading-relaxed">Temanmu wajib mengikuti dress code dan aturan acara. Teman bisa ditambah atau dihapus nanti lewat Cek Tiket.</p>
             </div>

@@ -369,10 +369,6 @@ const guestForm = document.getElementById('guestForm');
 const guestHost = document.getElementById('guestHost');
 const guestHostInfo = document.getElementById('guestHostInfo');
 const guestNama = document.getElementById('guestNama');
-const guestAsal = document.getElementById('guestAsal');
-const guestInstansi = document.getElementById('guestInstansi');
-const guestInstansiWrap = document.getElementById('guestInstansiWrap');
-const guestInstansiLabel = document.getElementById('guestInstansiLabel');
 const guestError = document.getElementById('guestError');
 const guestSubmit = document.getElementById('guestSubmit');
 const modeButtons = document.querySelectorAll('#manualModes [data-mode]');
@@ -412,14 +408,7 @@ function updateGuestHostInfo() {
   }
 }
 
-function updateGuestAsal() {
-  const asal = guestAsal.value;
-  guestInstansiWrap.classList.toggle('hidden', asal !== 'kampus_lain' && asal !== 'umum');
-  guestInstansiLabel.textContent = asal === 'kampus_lain' ? 'Nama kampus' : 'Instansi / pekerjaan (opsional)';
-}
-
 guestHost.addEventListener('input', updateGuestHostInfo);
-guestAsal.addEventListener('change', updateGuestAsal);
 
 guestForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -427,9 +416,7 @@ guestForm.addEventListener('submit', async (e) => {
   const payload = {
     action: 'walkin_guest',
     pengundang: guestHost.value.trim(),
-    nama: guestNama.value.replace(/\s+/g, ' ').trim(),
-    asal: guestAsal.value,
-    instansi: guestInstansi.value.replace(/\s+/g, ' ').trim()
+    nama: guestNama.value.replace(/\s+/g, ' ').trim()
   };
 
   if (!NIM_PATTERN.test(payload.pengundang)) {
@@ -440,16 +427,6 @@ guestForm.addEventListener('submit', async (e) => {
   if (!payload.nama) {
     guestError.textContent = 'Nama tamu wajib diisi.';
     guestNama.focus();
-    return;
-  }
-  if (!payload.asal) {
-    guestError.textContent = 'Pilih asal tamu.';
-    guestAsal.focus();
-    return;
-  }
-  if (payload.asal === 'kampus_lain' && !payload.instansi) {
-    guestError.textContent = 'Nama kampus wajib diisi.';
-    guestInstansi.focus();
     return;
   }
 
@@ -470,7 +447,6 @@ guestForm.addEventListener('submit', async (e) => {
         markCheckedIn(result.id);
       }
       guestForm.reset();
-      updateGuestAsal();
       updateGuestHostInfo();
     } else if (result.status === 'already') {
       showOverlay('warning', 'Sudah Check-In', `${result.nama} · Tamu dari ${result.pengundangNama}`);
@@ -825,15 +801,13 @@ exportBtn.addEventListener('click', async () => {
       Nama: p.nama,
       Angkatan: p.angkatan || '',
       Jurusan: p.jurusan || '',
-      'Asal Tamu': p.asal || '',
-      Instansi: p.instansi || '',
       Pengundang: p.kategori === 'Tamu' ? `${p.pengundangNama || ''} (${p.pengundang})` : '',
       RSVP: p.kehadiran === 'hadir' ? 'Hadir' : 'Tidak hadir',
       'Check-In': p.checkedIn ? 'Sudah' : 'Belum'
     }));
     // Semua sel ditulis sebagai teks, jadi isian seperti "=..." tidak dijalankan sebagai rumus.
     const sheet = XLSX.utils.json_to_sheet(rows);
-    sheet['!cols'] = [{ wch: 5 }, { wch: 11 }, { wch: 14 }, { wch: 30 }, { wch: 10 }, { wch: 32 }, { wch: 22 }, { wch: 28 }, { wch: 34 }, { wch: 12 }, { wch: 10 }];
+    sheet['!cols'] = [{ wch: 5 }, { wch: 11 }, { wch: 14 }, { wch: 30 }, { wch: 10 }, { wch: 32 }, { wch: 34 }, { wch: 12 }, { wch: 10 }];
     const book = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book, sheet, 'Peserta');
     XLSX.writeFile(book, exportFileName());

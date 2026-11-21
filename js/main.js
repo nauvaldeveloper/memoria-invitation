@@ -85,6 +85,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!reduceMotion) timelineCards.forEach(card => cardObserver.observe(card));
 
+  // --- 3B. GALERI: PERBESAR FOTO ---
+  const galleryButtons = [...document.querySelectorAll('#galleryGrid [data-gallery-index]')];
+  const lightbox = document.getElementById('galleryLightbox');
+
+  if (galleryButtons.length && lightbox) {
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    const photos = galleryButtons.map((button) => {
+      const img = button.querySelector('img');
+      const large = img.srcset.split(',').map((s) => s.trim().split(' ')[0]).pop();
+      return { src: large, alt: img.alt, caption: button.querySelector('span p')?.textContent.trim() || '' };
+    });
+    let current = 0;
+    let lastTrigger = null;
+
+    const showPhoto = (index) => {
+      current = (index + photos.length) % photos.length;
+      lightboxImg.src = photos[current].src;
+      lightboxImg.alt = photos[current].alt;
+      const nomor = `${current + 1}/${photos.length}`;
+      lightboxCaption.textContent = photos[current].caption ? `${photos[current].caption} · ${nomor}` : nomor;
+    };
+    const openLightbox = (index, trigger) => {
+      lastTrigger = trigger;
+      showPhoto(index);
+      lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+      document.getElementById('lightboxClose').focus();
+    };
+    const closeLightbox = () => {
+      if (lightbox.classList.contains('hidden')) return;
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+      if (lastTrigger) lastTrigger.focus();
+    };
+
+    galleryButtons.forEach((button) => {
+      button.addEventListener('click', () => openLightbox(Number(button.dataset.galleryIndex), button));
+    });
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    document.getElementById('lightboxPrev').addEventListener('click', () => showPhoto(current - 1));
+    document.getElementById('lightboxNext').addEventListener('click', () => showPhoto(current + 1));
+    // Klik di area gelap (bukan di foto atau tombol) menutup tampilan.
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (lightbox.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') showPhoto(current - 1);
+      if (e.key === 'ArrowRight') showPhoto(current + 1);
+    });
+
+    // Geser foto di HP
+    let touchX = null;
+    lightbox.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+    lightbox.addEventListener('touchend', (e) => {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) showPhoto(current + (dx < 0 ? 1 : -1));
+      touchX = null;
+    });
+  }
+
   // --- 4. CAROUSEL DRESS CODE ---
   const dressCarousel = document.getElementById('dressCarousel');
   const dressPrev = document.getElementById('dressPrev');

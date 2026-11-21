@@ -51,26 +51,6 @@ select option:hover, select option:focus {
   color: white;
 }
 
-/* Desain Placeholder "Coming Soon" untuk Gallery */
-.gallery-placeholder {
-  background: 
-    linear-gradient(45deg, rgba(74,4,4,0.8) 25%, transparent 25%, transparent 75%, rgba(74,4,4,0.8) 75%, rgba(74,4,4,0.8)), 
-    linear-gradient(45deg, rgba(74,4,4,0.8) 25%, rgba(10,10,10,0.9) 25%, rgba(10,10,10,0.9) 75%, rgba(74,4,4,0.8) 75%, rgba(74,4,4,0.8));
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border: 1px solid rgba(212,175,55,0.2);
-  transition: all 0.5s ease;
-}
-.gallery-placeholder:hover {
-  border-color: rgba(212,175,55,0.6);
-  background-size: 24px 24px;
-}
-
 /* Kartu tiket bioskop untuk contoh dress code */
 .movie-ticket {
   position: relative;

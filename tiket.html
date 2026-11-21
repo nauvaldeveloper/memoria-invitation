@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
   <title>Tiket Memoria</title>
+  <meta name="theme-color" content="#4a0404" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Memoria" />
+  <meta property="og:title" content="Tiket Memoria" />
+  <meta property="og:description" content="Sabtu, 5 Desember 2026 di Aula FEB, Telkom University. Dress code: Be a Movie Character. Konfirmasi kehadiranmu dan dapatkan tiket QR!" />
+  <meta property="og:url" content="https://memoria-invitation.vercel.app/" />
+  <meta property="og:image" content="https://memoria-invitation.vercel.app/assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Panggung teater bertuliskan MEMORIA, Hima SIKC Presents" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tiket Memoria" />
+  <meta name="twitter:description" content="Sabtu, 5 Desember 2026 di Aula FEB, Telkom University. Dress code: Be a Movie Character. Konfirmasi kehadiranmu dan dapatkan tiket QR!" />
+  <meta name="twitter:image" content="https://memoria-invitation.vercel.app/assets/og-image.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +59,83 @@
     <!-- Tiket -->
     <div id="ticketState" class="hidden">
       <div id="statusBanner" class="hidden mb-4 px-4 py-3 rounded-xl border border-memoria-gold/40 bg-memoria-velvet/40 text-center text-sm text-memoria-gold-light"></div>
+      <div id="guestBanner" class="hidden mb-4 px-4 py-3 rounded-xl border text-center text-sm"></div>
 
+      <!-- Kartu tiket dibuat dari template -->
+      <div id="ticketList" class="space-y-10"></div>
+
+      <!-- Pendaftar yang tercatat tidak hadir -->
+      <div id="declinedPanel" class="hidden rounded-2xl border border-memoria-gold/30 bg-memoria-velvet/30 p-6 text-center">
+        <p class="text-memoria-gold text-xs tracking-[0.3em] uppercase font-semibold mb-2">Hima SIKC Presents</p>
+        <h1 class="font-cinzel font-bold text-3xl text-memoria-gold tracking-widest mb-4">MEMORIA</h1>
+        <p id="declinedName" class="font-semibold text-memoria-gold-light text-lg"></p>
+        <p class="text-gray-400 text-sm mt-2">Kamu tercatat <strong class="text-gray-200">tidak hadir</strong>, jadi belum ada tiket QR. Berubah pikiran? Ubah kehadiranmu di bawah ini.</p>
+        <button id="attendBtn" type="button" class="mt-6 w-full py-3 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold rounded-lg disabled:opacity-60">Saya jadi hadir</button>
+      </div>
+
+      <!-- Teman yang diajak (hanya di tiket pendaftar) -->
+      <section id="guestManager" class="hidden mt-10" aria-labelledby="guestManagerTitle">
+        <div class="flex items-end justify-between gap-3 mb-1">
+          <h2 id="guestManagerTitle" class="font-cinzel text-xl text-memoria-gold">Teman yang Kamu Ajak</h2>
+          <span id="guestCount" class="text-sm text-gray-400"></span>
+        </div>
+        <p class="text-sm text-gray-400">Kirim tiket ke tiap teman. Teman yang batal ikut bisa dihapus selama belum check-in.</p>
+
+        <div id="guestRows" class="space-y-3 mt-4"></div>
+        <p id="guestEmpty" class="hidden text-center text-sm text-gray-500 py-6 rounded-xl border border-dashed border-white/10 mt-4">Belum ada teman yang diajak.</p>
+        <p id="guestFeedback" class="hidden text-center text-sm mt-3" role="status"></p>
+
+        <button id="openAddGuestBtn" type="button" class="w-full mt-4 py-3 border border-memoria-gold text-memoria-gold font-bold rounded-lg hover:bg-memoria-gold hover:text-black transition-colors">+ Ajak teman</button>
+
+        <form id="addGuestForm" class="hidden mt-4 rounded-xl border border-memoria-gold/30 bg-memoria-velvet/20 p-4 space-y-4" novalidate>
+          <div id="addGuestList" class="space-y-4"></div>
+          <button type="button" id="addGuestMoreBtn" class="w-full py-2.5 border border-dashed border-memoria-gold/50 text-memoria-gold text-sm font-semibold rounded-lg hover:bg-memoria-gold/10 transition-colors">+ Tambah teman lagi</button>
+          <p id="addGuestError" class="text-sm text-red-400 min-h-[1.25rem]" role="alert"></p>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" id="cancelAddGuestBtn" class="py-3 border border-white/20 text-gray-300 font-semibold rounded-lg hover:border-white/40">Batal</button>
+            <button type="submit" id="saveGuestBtn" class="py-3 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold rounded-lg disabled:opacity-60">Simpan</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Batalkan kehadiran pendaftar -->
+      <div id="cancelPanel" class="hidden mt-10 text-center">
+        <button id="cancelAttendBtn" type="button" class="text-sm text-gray-400 underline underline-offset-4 hover:text-red-300">Batalkan kehadiran saya</button>
+        <p class="text-xs text-gray-500 mt-1">Tiket teman yang belum check-in ikut tidak berlaku.</p>
+      </div>
+
+      <div class="mt-8">
+        <div class="flex flex-wrap justify-center gap-3">
+          <a data-event-action="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Aula%20FEB%20Telkom%20University" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-memoria-gold/60 text-memoria-gold text-sm font-semibold hover:bg-memoria-gold hover:text-black transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Buka Maps</span></a>
+          <button type="button" data-event-action="calendar" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-memoria-gold/60 text-memoria-gold text-sm font-semibold hover:bg-memoria-gold hover:text-black transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3v3m8-3v3M4 9.5h16M5.5 5h13A1.5 1.5 0 0120 6.5v12a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-12A1.5 1.5 0 015.5 5zM12 13v4m-2-2h4"/></svg><span>Simpan ke Kalender</span></button>
+        </div>
+      </div>
+
+      <a href="index.html" class="block text-center text-sm text-gray-400 hover:text-memoria-gold mt-6">Kembali ke undangan</a>
+    </div>
+
+  </main>
+
+  <!-- Popup tiket teman (dibuka dari daftar teman di tiket pendaftar) -->
+  <div id="guestModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/85 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="guestModalTitle">
+    <div id="guestModalBackdrop" class="min-h-full flex items-start sm:items-center justify-center p-4">
+      <div class="w-full max-w-md py-4" data-modal-panel>
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <p id="guestModalTitle" class="text-memoria-gold text-xs tracking-[0.3em] uppercase font-semibold">Tiket Temanmu</p>
+          <button id="closeGuestModalBtn" type="button" aria-label="Tutup tiket teman" class="w-10 h-10 shrink-0 flex items-center justify-center rounded-full border border-white/20 text-gray-200 hover:border-memoria-gold hover:text-memoria-gold transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <div id="guestModalBody"></div>
+        <button id="guestModalSendBtn" type="button" class="w-full mt-3 py-3 bg-memoria-velvet/70 border border-memoria-gold/60 text-memoria-gold-light font-bold rounded-lg hover:bg-memoria-velvet transition-colors"></button>
+        <p id="guestModalFeedback" class="hidden text-center text-xs mt-3" role="status"></p>
+        <button id="closeGuestModalBottomBtn" type="button" class="w-full mt-3 py-3 border border-white/20 text-gray-300 font-semibold rounded-lg hover:border-white/40">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <template id="ticketTemplate">
+    <section data-role="card">
       <div class="rounded-2xl border border-memoria-gold/40 bg-gradient-to-b from-memoria-velvet/60 to-memoria-black overflow-hidden shadow-[0_0_50px_rgba(74,4,4,0.5)]">
         <div class="text-center px-6 pt-8 pb-6">
           <p class="text-memoria-gold text-xs tracking-[0.3em] uppercase font-semibold mb-2">Hima SIKC Presents</p>
@@ -53,35 +143,36 @@
         </div>
 
         <div class="px-6 flex justify-center">
-          <div id="qrcode" class="bg-white rounded-xl p-3 [&>img]:!hidden [&>canvas]:!block [&>canvas]:w-[220px] [&>canvas]:h-[220px]" role="img" aria-label="QR code tiket"></div>
+          <div data-role="qr" class="bg-white rounded-xl p-3 [&>img]:!hidden [&>canvas]:!block [&>canvas]:w-[220px] [&>canvas]:h-[220px]" role="img" aria-label="QR code tiket"></div>
         </div>
-        <div id="qrcodeHiRes" class="hidden" aria-hidden="true"></div>
+        <div data-role="qrHiRes" class="hidden" aria-hidden="true"></div>
 
         <div class="text-center px-6 pt-5 pb-6">
-          <p id="ticketName" class="font-playfair text-2xl text-memoria-gold-light break-words"></p>
-          <p id="ticketMeta" class="text-sm text-gray-400 mt-1"></p>
-          <p id="checkedInLabel" class="hidden mt-3 text-sm font-semibold text-green-400">Sudah check-in</p>
+          <p data-role="name" class="font-playfair text-2xl text-memoria-gold-light break-words"></p>
+          <p data-role="meta" class="text-sm text-gray-400 mt-1"></p>
+          <p data-role="guestOf" class="hidden mt-2 text-xs tracking-widest uppercase font-semibold text-memoria-gold"></p>
+          <p data-role="checked" class="hidden mt-3 text-sm font-semibold text-green-400">Sudah check-in</p>
         </div>
 
         <div class="relative border-t border-dashed border-memoria-gold/40 mx-6"></div>
 
-        <dl id="eventInfo" class="px-6 py-5 space-y-2 text-sm"></dl>
+        <dl data-role="eventInfo" class="px-6 py-5 space-y-2 text-sm"></dl>
       </div>
 
       <p class="text-center text-xs text-gray-400 mt-4">Tunjukkan QR ini ke panitia di pintu masuk.</p>
 
-      <div class="grid grid-cols-2 gap-3 mt-5">
-        <button id="downloadPdfBtn" type="button" class="py-3 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.5)] transition-shadow">Download PDF</button>
-        <button id="downloadPngBtn" type="button" class="py-3 border border-memoria-gold text-memoria-gold font-bold rounded-lg hover:bg-memoria-gold hover:text-black transition-colors">Simpan Gambar</button>
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <button data-role="pdf" type="button" class="py-3 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.5)] transition-shadow">Download PDF</button>
+        <button data-role="png" type="button" class="py-3 border border-memoria-gold text-memoria-gold font-bold rounded-lg hover:bg-memoria-gold hover:text-black transition-colors">Simpan Gambar</button>
       </div>
-      <p id="downloadError" class="hidden text-center text-xs text-red-400 mt-3">Gagal membuat file. Coba lagi, atau screenshot tiket ini.</p>
-      <a href="index.html" class="block text-center text-sm text-gray-400 hover:text-memoria-gold mt-5">Kembali ke undangan</a>
-    </div>
-
-  </main>
+      <p data-role="feedback" class="hidden text-center text-xs mt-3" role="status"></p>
+    </section>
+  </template>
 
   <script src="js/config.js"></script>
+  <script src="js/event-actions.js"></script>
   <script src="js/confetti.js"></script>
+  <script src="js/guest-fields.js"></script>
   <script src="js/tiket.js"></script>
 </body>
 </html>

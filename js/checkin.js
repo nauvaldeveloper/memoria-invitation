@@ -34,7 +34,8 @@ const manualSubmit = document.getElementById('manualSubmit');
 const TABS = {
   scan: { button: document.getElementById('tabScanBtn'), view: document.getElementById('scanView') },
   search: { button: document.getElementById('tabSearchBtn'), view: document.getElementById('searchView') },
-  manual: { button: document.getElementById('tabManualBtn'), view: document.getElementById('manualView') }
+  manual: { button: document.getElementById('tabManualBtn'), view: document.getElementById('manualView') },
+  list: { button: document.getElementById('tabListBtn'), view: document.getElementById('listView') }
 };
 
 async function callApi(payload) {
@@ -119,9 +120,12 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 function updateTotals() {
   const hadir = allData.filter((d) => d.checkedIn).length;
   const terdaftar = allData.filter((d) => d.kehadiran === 'hadir' || d.checkedIn).length;
+  const tamuHadir = allData.filter((d) => d.kategori === 'Tamu' && d.checkedIn).length;
+  document.getElementById('tamuHadir').textContent = tamuHadir ? `· ${tamuHadir} tamu` : '';
   document.getElementById('totalHadir').textContent = hadir;
   document.getElementById('totalTerdaftar').textContent = terdaftar;
   document.getElementById('progressBar').style.width = terdaftar ? `${Math.min(100, (hadir / terdaftar) * 100)}%` : '0';
+  if (activeTab === 'list') renderList();
 }
 
 function timeLabel() {
@@ -172,6 +176,8 @@ function switchTab(name) {
     searchInput.focus();
   } else if (name === 'manual') {
     manualNim.focus();
+  } else if (name === 'list') {
+    renderList();
   }
 }
 
@@ -247,12 +253,14 @@ async function submitCheckIn(target) {
     const result = await callApi({ action: 'checkin', ...target });
 
     if (result.status === 'ok') {
-      showOverlay('success', 'Berhasil!', result.nama);
-      markCheckedIn(result.nim);
+      showOverlay('success', 'Berhasil!', who(result));
+      markCheckedIn(result.id);
     } else if (result.status === 'already') {
-      showOverlay('warning', 'Sudah Check-In', result.nama);
+      showOverlay('warning', 'Sudah Check-In', who(result));
     } else if (result.status === 'not_attending') {
-      showOverlay('warning', 'RSVP Tidak Hadir', `${result.nama}: daftarkan lewat menu Daftar Manual.`);
+      showOverlay('warning', 'RSVP Tidak Hadir', result.kategori === 'Tamu'
+        ? `${who(result)}. Pengundangnya membatalkan kehadiran, jadi tiket ini tidak berlaku.`
+        : `${result.nama}: daftarkan lewat menu Daftar Manual.`);
     } else if (result.status === 'not_found') {
       showOverlay('error', 'Tidak Dikenal', 'QR tidak terdaftar. Coba cari nama peserta.');
     } else {
@@ -275,8 +283,13 @@ function handleOtherResult(result) {
   }
 }
 
-function markCheckedIn(nim) {
-  const peserta = allData.find((d) => d.nim === nim);
+// Nama untuk layar hasil: tamu ditambah keterangan pengundangnya.
+function who(result) {
+  return result.kategori === 'Tamu' && result.pengundangNama ? `${result.nama} · Tamu dari ${result.pengundangNama}` : result.nama;
+}
+
+function markCheckedIn(id) {
+  const peserta = allData.find((d) => d.id === id);
   if (peserta) {
     peserta.checkedIn = true;
     peserta.kehadiran = 'hadir';
@@ -329,10 +342,10 @@ manualForm.addEventListener('submit', async (e) => {
     if (result.status === 'ok') {
       showOverlay('success', 'Berhasil!', `${result.nama} tercatat hadir.`);
       if (result.result === 'new') {
-        allData.push({ nama: result.nama, nim: result.nim, angkatan: payload.angkatan, jurusan: payload.jurusan.toUpperCase(), kehadiran: 'hadir', checkedIn: true });
+        allData.push({ id: result.id, kategori: 'Mahasiswa', nama: result.nama, nim: result.nim, angkatan: payload.angkatan, jurusan: payload.jurusan.toUpperCase(), kehadiran: 'hadir', checkedIn: true });
         updateTotals();
       } else {
-        markCheckedIn(result.nim);
+        markCheckedIn(result.id);
       }
       manualForm.reset();
     } else if (result.status === 'already') {
@@ -348,6 +361,133 @@ manualForm.addEventListener('submit', async (e) => {
     showOverlay('error', 'Koneksi Gagal', 'Periksa internet, lalu coba lagi.');
   } finally {
     manualSubmit.disabled = false;
+  }
+});
+
+// --- DAFTAR MANUAL: TAMU (TEMAN) ---
+const guestForm = document.getElementById('guestForm');
+const guestHost = document.getElementById('guestHost');
+const guestHostInfo = document.getElementById('guestHostInfo');
+const guestNama = document.getElementById('guestNama');
+const guestAsal = document.getElementById('guestAsal');
+const guestInstansi = document.getElementById('guestInstansi');
+const guestInstansiWrap = document.getElementById('guestInstansiWrap');
+const guestInstansiLabel = document.getElementById('guestInstansiLabel');
+const guestError = document.getElementById('guestError');
+const guestSubmit = document.getElementById('guestSubmit');
+const modeButtons = document.querySelectorAll('#manualModes [data-mode]');
+let manualMode = 'mahasiswa';
+
+function setManualMode(mode) {
+  manualMode = mode;
+  manualForm.classList.toggle('hidden', mode !== 'mahasiswa');
+  guestForm.classList.toggle('hidden', mode !== 'tamu');
+  modeButtons.forEach((button) => {
+    const active = button.dataset.mode === mode;
+    button.className = `py-2 rounded-lg text-sm font-semibold transition-colors ${active ? 'bg-memoria-gold text-black' : 'text-gray-300 hover:text-white'}`;
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+}
+modeButtons.forEach((button) => button.addEventListener('click', () => {
+  setManualMode(button.dataset.mode);
+  (manualMode === 'tamu' ? guestHost : manualNim).focus();
+}));
+setManualMode('mahasiswa');
+
+// Menampilkan nama pengundang begitu NIM-nya cocok dengan data peserta.
+function updateGuestHostInfo() {
+  const nim = guestHost.value.trim();
+  if (!NIM_PATTERN.test(nim)) {
+    guestHostInfo.textContent = '';
+    return;
+  }
+  const host = allData.find((d) => d.kategori !== 'Tamu' && d.nim === nim);
+  const guestCount = allData.filter((d) => d.kategori === 'Tamu' && d.pengundang === nim).length;
+  if (!host) {
+    guestHostInfo.className = 'text-xs text-yellow-300 mt-1.5 min-h-[1rem]';
+    guestHostInfo.textContent = 'NIM ini belum terdaftar. Daftarkan pengundangnya dulu di tab Mahasiswa.';
+  } else {
+    guestHostInfo.className = 'text-xs text-gray-300 mt-1.5 min-h-[1rem]';
+    guestHostInfo.textContent = guestCount ? `Pengundang: ${host.nama} · sudah mengajak ${guestCount} teman` : `Pengundang: ${host.nama}`;
+  }
+}
+
+function updateGuestAsal() {
+  const asal = guestAsal.value;
+  guestInstansiWrap.classList.toggle('hidden', asal !== 'kampus_lain' && asal !== 'umum');
+  guestInstansiLabel.textContent = asal === 'kampus_lain' ? 'Nama kampus' : 'Instansi / pekerjaan (opsional)';
+}
+
+guestHost.addEventListener('input', updateGuestHostInfo);
+guestAsal.addEventListener('change', updateGuestAsal);
+
+guestForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    action: 'walkin_guest',
+    pengundang: guestHost.value.trim(),
+    nama: guestNama.value.replace(/\s+/g, ' ').trim(),
+    asal: guestAsal.value,
+    instansi: guestInstansi.value.replace(/\s+/g, ' ').trim()
+  };
+
+  if (!NIM_PATTERN.test(payload.pengundang)) {
+    guestError.textContent = 'NIM pengundang harus berupa 5–20 angka.';
+    guestHost.focus();
+    return;
+  }
+  if (!payload.nama) {
+    guestError.textContent = 'Nama tamu wajib diisi.';
+    guestNama.focus();
+    return;
+  }
+  if (!payload.asal) {
+    guestError.textContent = 'Pilih asal tamu.';
+    guestAsal.focus();
+    return;
+  }
+  if (payload.asal === 'kampus_lain' && !payload.instansi) {
+    guestError.textContent = 'Nama kampus wajib diisi.';
+    guestInstansi.focus();
+    return;
+  }
+
+  guestError.textContent = '';
+  guestSubmit.disabled = true;
+  isProcessing = true;
+  showOverlay('loading', 'Memproses...', '');
+
+  try {
+    const result = await callApi(payload);
+
+    if (result.status === 'ok') {
+      showOverlay('success', 'Berhasil!', `${result.nama} tercatat hadir · Tamu dari ${result.pengundangNama}`);
+      if (result.result === 'new') {
+        allData.push({ id: result.id, kategori: 'Tamu', nama: result.nama, nim: '', angkatan: '', jurusan: '', asal: result.asal, instansi: result.instansi, pengundang: result.pengundang, pengundangNama: result.pengundangNama, kehadiran: 'hadir', checkedIn: true });
+        updateTotals();
+      } else {
+        markCheckedIn(result.id);
+      }
+      guestForm.reset();
+      updateGuestAsal();
+      updateGuestHostInfo();
+    } else if (result.status === 'already') {
+      showOverlay('warning', 'Sudah Check-In', `${result.nama} · Tamu dari ${result.pengundangNama}`);
+    } else if (result.status === 'host_not_found') {
+      showOverlay('warning', 'Pengundang Belum Terdaftar', 'Daftarkan mahasiswa pengundangnya dulu di tab Mahasiswa.');
+    } else if (result.status === 'host_not_attending') {
+      showOverlay('warning', 'RSVP Pengundang Tidak Hadir', `${result.pengundangNama} tercatat tidak hadir. Daftarkan ulang pengundangnya di tab Mahasiswa terlebih dahulu.`);
+    } else if (result.status === 'quota_full') {
+      showOverlay('warning', 'Kuota Tamu Penuh', 'Tamu baru tidak bisa didaftarkan lagi.');
+    } else {
+      handleOtherResult(result);
+    }
+  } catch (err) {
+    console.error('Gagal daftar tamu', err);
+    showOverlay('error', 'Koneksi Gagal', 'Periksa internet, lalu coba lagi.');
+  } finally {
+    guestSubmit.disabled = false;
   }
 });
 
@@ -431,7 +571,7 @@ function createNotFound(keyword) {
   button.type = 'button';
   button.id = 'registerFromSearchBtn';
   button.className = 'px-5 py-2.5 border border-memoria-gold text-memoria-gold font-semibold rounded-lg hover:bg-memoria-gold hover:text-black transition-colors';
-  button.textContent = 'Daftarkan Manual';
+  button.textContent = 'Daftarkan Mahasiswa';
   button.addEventListener('click', () => {
     if (/^\d+$/.test(keyword)) {
       manualNim.value = keyword;
@@ -440,11 +580,44 @@ function createNotFound(keyword) {
       manualNim.value = '';
       manualNama.value = keyword;
     }
+    setManualMode('mahasiswa');
     switchTab('manual');
   });
 
-  box.append(text, button);
+  const actions = document.createElement('div');
+  actions.className = 'flex flex-wrap justify-center gap-2';
+  actions.append(button);
+
+  // Nama yang tidak ditemukan bisa juga didaftarkan sebagai tamu.
+  if (!/^\d+$/.test(keyword)) {
+    const guestButton = document.createElement('button');
+    guestButton.type = 'button';
+    guestButton.id = 'registerGuestFromSearchBtn';
+    guestButton.className = button.className;
+    guestButton.textContent = 'Daftarkan sebagai Tamu';
+    guestButton.addEventListener('click', () => {
+      guestNama.value = keyword;
+      setManualMode('tamu');
+      switchTab('manual');
+      guestHost.focus();
+    });
+    actions.append(guestButton);
+  }
+
+  box.append(text, actions);
   return box;
+}
+
+function participantMeta(peserta) {
+  if (peserta.kategori === 'Tamu') {
+    return [`Tamu dari ${peserta.pengundangNama || peserta.pengundang}`, peserta.asal, peserta.instansi].filter(Boolean).join(' · ');
+  }
+  return [`NIM ${peserta.nim}`, peserta.angkatan, peserta.jurusan].filter(Boolean).join(' · ');
+}
+
+function matchesKeyword(peserta, keyword) {
+  return [peserta.nama, peserta.nim, peserta.jurusan, peserta.pengundangNama, peserta.instansi]
+    .some((v) => String(v || '').toLowerCase().includes(keyword));
 }
 
 function renderSearch() {
@@ -460,7 +633,7 @@ function renderSearch() {
     return;
   }
 
-  const filtered = allData.filter((d) => d.nama.toLowerCase().includes(keyword) || d.nim.includes(keyword));
+  const filtered = allData.filter((d) => matchesKeyword(d, keyword));
   if (filtered.length === 0) {
     searchResults.replaceChildren(createNotFound(raw));
     return;
@@ -480,7 +653,7 @@ function createResultCard(peserta) {
   name.textContent = peserta.nama;
   const nim = document.createElement('p');
   nim.className = 'text-xs text-gray-400 mt-0.5';
-  nim.textContent = [`NIM ${peserta.nim}`, peserta.angkatan, peserta.jurusan].filter(Boolean).join(' · ');
+  nim.textContent = participantMeta(peserta);
   info.append(name, nim);
 
   let action;
@@ -497,7 +670,7 @@ function createResultCard(peserta) {
     action.type = 'button';
     action.className = 'bg-memoria-gold text-black text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-yellow-500 transition-colors shrink-0';
     action.textContent = 'CHECK-IN';
-    action.addEventListener('click', () => submitCheckIn({ nim: peserta.nim }));
+    action.addEventListener('click', () => submitCheckIn(peserta.kategori === 'Tamu' ? { guestId: peserta.id } : { nim: peserta.nim }));
   }
 
   card.append(info, action);
@@ -505,6 +678,173 @@ function createResultCard(peserta) {
 }
 
 searchInput.addEventListener('input', renderSearch);
+
+// --- DAFTAR PESERTA & EXPORT ---
+const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+const listSearch = document.getElementById('listSearch');
+const participantList = document.getElementById('participantList');
+const listSummary = document.getElementById('listSummary');
+const exportBtn = document.getElementById('exportBtn');
+const exportError = document.getElementById('exportError');
+const filterButtons = document.querySelectorAll('#listFilters [data-filter]');
+const kategoriButtons = document.querySelectorAll('#kategoriFilters [data-kategori]');
+let listFilter = 'semua';
+let listKategori = 'semua';
+
+const STATUS = {
+  hadir: { label: 'Sudah hadir', badge: 'text-green-400 bg-green-500/10 border-green-500/30' },
+  belum: { label: 'Belum hadir', badge: 'text-memoria-gold bg-memoria-gold/10 border-memoria-gold/30' },
+  tidak: { label: 'RSVP tidak hadir', badge: 'text-gray-400 bg-white/5 border-white/10' }
+};
+
+function statusOf(peserta) {
+  if (peserta.checkedIn) return 'hadir';
+  return peserta.kehadiran === 'hadir' ? 'belum' : 'tidak';
+}
+
+function filteredParticipants() {
+  const keyword = listSearch.value.replace(/\s+/g, ' ').trim().toLowerCase();
+  return allData
+    .filter((d) => listKategori === 'semua' || (d.kategori || 'Mahasiswa') === listKategori)
+    .filter((d) => listFilter === 'semua' || statusOf(d) === listFilter)
+    .filter((d) => !keyword || matchesKeyword(d, keyword))
+    .sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+}
+
+function renderList() {
+  // Jumlah per status mengikuti kategori yang dipilih.
+  const inKategori = allData.filter((d) => listKategori === 'semua' || (d.kategori || 'Mahasiswa') === listKategori);
+  const counts = { semua: inKategori.length, hadir: 0, belum: 0, tidak: 0 };
+  inKategori.forEach((d) => { counts[statusOf(d)]++; });
+
+  const kategoriCounts = { Mahasiswa: 0, Tamu: 0 };
+  allData.forEach((d) => { kategoriCounts[d.kategori === 'Tamu' ? 'Tamu' : 'Mahasiswa']++; });
+  kategoriButtons.forEach((button) => {
+    const active = button.dataset.kategori === listKategori;
+    const count = button.querySelector('[data-count]');
+    if (count) count.textContent = `(${kategoriCounts[button.dataset.kategori]})`;
+    button.className = `px-3 py-1 rounded-lg border text-xs font-semibold transition-colors ${active ? 'bg-white/10 text-white border-white/40' : 'text-gray-400 border-white/10 hover:border-white/30'}`;
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+
+  filterButtons.forEach((button) => {
+    const active = button.dataset.filter === listFilter;
+    button.querySelector('[data-count]').textContent = `(${counts[button.dataset.filter]})`;
+    button.className = `shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-semibold transition-colors ${active ? 'bg-memoria-gold text-black border-memoria-gold' : 'text-gray-300 border-white/15 hover:border-memoria-gold/60'}`;
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+
+  if (!dataLoaded) {
+    listSummary.textContent = 'Memuat data...';
+    participantList.replaceChildren();
+    exportBtn.disabled = true;
+    return;
+  }
+
+  const rows = filteredParticipants();
+  listSummary.textContent = `Menampilkan ${rows.length} dari ${allData.length} peserta`;
+  exportBtn.disabled = rows.length === 0;
+
+  if (rows.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'text-center text-gray-500 text-sm py-10';
+    empty.textContent = 'Tidak ada peserta yang cocok.';
+    participantList.replaceChildren(empty);
+    return;
+  }
+
+  participantList.replaceChildren(...rows.map((peserta) => {
+    const row = document.createElement('div');
+    row.className = 'bg-neutral-900 border border-white/10 px-4 py-3 rounded-xl flex items-center justify-between gap-3';
+
+    const info = document.createElement('div');
+    info.className = 'min-w-0';
+    const name = document.createElement('p');
+    name.className = 'font-semibold text-white truncate';
+    name.textContent = peserta.nama;
+    const meta = document.createElement('p');
+    meta.className = 'text-xs text-gray-400 mt-0.5 truncate';
+    meta.textContent = participantMeta(peserta);
+    info.append(name, meta);
+
+    const status = STATUS[statusOf(peserta)];
+    const badge = document.createElement('span');
+    badge.className = `shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-lg border ${status.badge}`;
+    badge.textContent = status.label;
+
+    row.append(info, badge);
+    return row;
+  }));
+}
+
+filterButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    listFilter = button.dataset.filter;
+    renderList();
+  });
+});
+kategoriButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    listKategori = button.dataset.kategori;
+    renderList();
+  });
+});
+listSearch.addEventListener('input', renderList);
+
+function loadXlsx() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = XLSX_URL;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Library Excel gagal dimuat'));
+    document.head.appendChild(script);
+  });
+}
+
+function exportFileName() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const filter = listFilter === 'semua' ? '' : `-${listFilter === 'hadir' ? 'sudah-hadir' : listFilter === 'belum' ? 'belum-hadir' : 'tidak-hadir'}`;
+  const kategori = listKategori === 'semua' ? '' : `-${listKategori.toLowerCase()}`;
+  return `memoria-peserta${kategori}${filter}-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.xlsx`;
+}
+
+exportBtn.addEventListener('click', async () => {
+  exportError.classList.add('hidden');
+  exportBtn.disabled = true;
+  const label = exportBtn.querySelector('span');
+  label.textContent = 'Menyiapkan...';
+  try {
+    await fetchData();
+    await loadXlsx();
+    const rows = filteredParticipants().map((p, i) => ({
+      No: i + 1,
+      Kategori: p.kategori || 'Mahasiswa',
+      NIM: p.nim || '',
+      Nama: p.nama,
+      Angkatan: p.angkatan || '',
+      Jurusan: p.jurusan || '',
+      'Asal Tamu': p.asal || '',
+      Instansi: p.instansi || '',
+      Pengundang: p.kategori === 'Tamu' ? `${p.pengundangNama || ''} (${p.pengundang})` : '',
+      RSVP: p.kehadiran === 'hadir' ? 'Hadir' : 'Tidak hadir',
+      'Check-In': p.checkedIn ? 'Sudah' : 'Belum'
+    }));
+    // Semua sel ditulis sebagai teks, jadi isian seperti "=..." tidak dijalankan sebagai rumus.
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    sheet['!cols'] = [{ wch: 5 }, { wch: 11 }, { wch: 14 }, { wch: 30 }, { wch: 10 }, { wch: 32 }, { wch: 22 }, { wch: 28 }, { wch: 34 }, { wch: 12 }, { wch: 10 }];
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, 'Peserta');
+    XLSX.writeFile(book, exportFileName());
+  } catch (err) {
+    console.error('Gagal export', err);
+    exportError.classList.remove('hidden');
+  } finally {
+    label.textContent = 'Export';
+    renderList();
+  }
+});
 
 // --- MULAI ---
 window.addEventListener('load', () => {

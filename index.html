@@ -4,6 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <title>Memoria - Perayaan Perjalanan Hima SIKC</title>
+  <meta name="description" content="Sabtu, 5 Desember 2026 di Aula FEB, Telkom University. Dress code: Be a Movie Character. Konfirmasi kehadiranmu dan dapatkan tiket QR!" />
+  <meta name="theme-color" content="#4a0404" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Memoria" />
+  <meta property="og:title" content="Memoria - Perayaan Perjalanan Hima SIKC" />
+  <meta property="og:description" content="Sabtu, 5 Desember 2026 di Aula FEB, Telkom University. Dress code: Be a Movie Character. Konfirmasi kehadiranmu dan dapatkan tiket QR!" />
+  <meta property="og:url" content="https://memoria-invitation.vercel.app/" />
+  <meta property="og:image" content="https://memoria-invitation.vercel.app/assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Panggung teater bertuliskan MEMORIA, Hima SIKC Presents" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Memoria - Perayaan Perjalanan Hima SIKC" />
+  <meta name="twitter:description" content="Sabtu, 5 Desember 2026 di Aula FEB, Telkom University. Dress code: Be a Movie Character. Konfirmasi kehadiranmu dan dapatkan tiket QR!" />
+  <meta name="twitter:image" content="https://memoria-invitation.vercel.app/assets/og-image.jpg" />
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -116,12 +131,12 @@
           RSVP Now
         </a>
       </div>
-    </div>
 
-    <!-- Scroll Indicator -->
-    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 animate-fade-in z-20" style="animation-delay: 1.5s;">
-      <span class="text-xs tracking-[0.3em] text-memoria-gold/80 uppercase">Scroll</span>
-      <div class="w-[1px] h-12 bg-gradient-to-b from-memoria-gold to-transparent"></div>
+      <!-- Scroll Indicator (khusus HP; ikut alur isi supaya tidak menabrak tombol) -->
+      <div id="scrollHint" class="md:hidden mt-10 mb-6 flex flex-col items-center gap-2 opacity-0 animate-fade-in pointer-events-none" style="animation-delay: 1.5s;" aria-hidden="true">
+        <span class="text-xs tracking-[0.3em] text-memoria-gold/80 uppercase">Scroll</span>
+        <div class="w-[1px] h-10 bg-gradient-to-b from-memoria-gold to-transparent"></div>
+      </div>
     </div>
   </header>
 
@@ -315,66 +330,47 @@
         <div id="dressCarousel" tabindex="0" role="region" aria-label="Inspirasi kostum karakter film" class="no-scrollbar flex gap-5 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 py-1 md:mx-0 md:px-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-memoria-gold rounded-2xl">
 
           <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #7f1d1d, #d4af37);">
-            <img src="assets/dresscode/harry-potter.jpg" alt="Contoh kostum Harry Potter" loading="lazy" class="w-full aspect-square object-cover object-top">
+            <img src="assets/dresscode/harry-potter.jpg" alt="Contoh kostum Harry Potter" loading="lazy" class="w-full aspect-[4/5] object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Harry Potter</h4>
             <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Jubah hitam, syal merah-emas, dasi bergaris, dan tongkat sihir.</p>
+            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Jubah hitam, dasi bergaris merah-emas, kacamata bulat, dan tongkat sihir.</p>
           </article>
 
           <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #78350f, #e7e5e4);">
-            <img src="assets/dresscode/pirates.jpg" alt="Contoh kostum Pirates of the Caribbean" loading="lazy" class="w-full aspect-square object-cover object-top">
+            <img src="assets/dresscode/pirates.jpg" alt="Contoh kostum Pirates of the Caribbean" loading="lazy" class="w-full aspect-[4/5] object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Pirates of the Caribbean</h4>
             <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Topi bajak laut, kemeja putih, rompi cokelat, dan sabuk.</p>
+            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Mantel panjang lusuh, topi tricorn, ikat kepala merah, selempang, dan sepatu bot.</p>
+            <p class="px-6 pb-5 -mt-3 text-[11px] text-gray-500">Foto: sewmamasew.com</p>
           </article>
 
           <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #4d5b2a, #d6d3d1);">
-            <img src="assets/dresscode/top-gun.jpg" alt="Contoh kostum Top Gun" loading="lazy" class="w-full aspect-square object-cover object-top">
+            <img src="assets/dresscode/top-gun.jpg" alt="Contoh kostum Top Gun" loading="lazy" class="w-full aspect-[4/5] object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Top Gun</h4>
             <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Jaket pilot hijau army, kaus putih, dan kacamata hitam.</p>
+            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Flight suit hijau army, kaus putih, kacamata aviator, dan helm pilot.</p>
           </article>
 
           <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #6b21a8, #eab308);">
-            <img src="assets/dresscode/joker.jpg" alt="Contoh kostum Joker" loading="lazy" class="w-full aspect-square object-cover object-top">
+            <img src="assets/dresscode/joker.jpg" alt="Contoh kostum Joker" loading="lazy" class="w-full aspect-[4/5] object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Joker</h4>
             <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Setelan ungu, rompi kuning, dan riasan wajah khas Joker.</p>
-          </article>
-
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #b91c1c, #eab308);">
-            <img src="assets/dresscode/iron-man.jpg" alt="Contoh kostum Iron Man" loading="lazy" class="w-full aspect-square object-cover object-top">
-            <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Iron Man</h4>
-            <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Kostum armor merah dan emas.</p>
+            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Setelan ungu, rompi kuning, kemeja putih, dasi hijau, dan riasan wajah khas Joker.</p>
           </article>
 
           <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #78350f, #a8a29e);">
-            <img src="assets/dresscode/sherlock.jpg" alt="Contoh kostum Sherlock Holmes" loading="lazy" class="w-full aspect-square object-cover object-top">
-            <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Sherlock Holmes</h4>
+            <img src="assets/dresscode/sherlock.jpg" alt="Contoh kostum Dr. Watson dari Sherlock Holmes" loading="lazy" class="w-full aspect-[4/5] object-cover object-top">
+            <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Dr. Watson (Sherlock Holmes)</h4>
             <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Mantel cokelat, topi detektif, dan kaca pembesar.</p>
+            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Mantel panjang, setelan tweed lengkap dengan rompi, kumis, dan topi bowler.</p>
           </article>
 
           <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #a8a29e, #f9fafb);">
-            <img src="assets/dresscode/leia.jpg" alt="Contoh kostum Leia (Star Wars)" loading="lazy" class="w-full aspect-square object-cover object-top">
+            <img src="assets/dresscode/leia.jpg" alt="Contoh kostum Leia (Star Wars)" loading="lazy" class="w-full aspect-[4/5] object-cover object-top">
             <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Leia (Star Wars)</h4>
             <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Gaun putih, ikat pinggang, dan rambut cepol di kedua sisi.</p>
-          </article>
-
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #dc2626, #eab308);">
-            <img src="assets/dresscode/luffy.jpg" alt="Contoh kostum Luffy (One Piece)" loading="lazy" class="w-full aspect-square object-cover object-top">
-            <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Luffy (One Piece)</h4>
-            <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Topi jerami dan kemeja merah.</p>
-          </article>
-
-          <article class="movie-ticket shrink-0 w-[78%] sm:w-[55%] md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] snap-center md:snap-start" style="--accent: linear-gradient(90deg, #38bdf8, #e0f2fe);">
-            <img src="assets/dresscode/elsa.jpg" alt="Contoh kostum Elsa (Frozen)" loading="lazy" class="w-full aspect-square object-cover object-top">
-            <h4 class="p-6 pb-5 font-playfair text-2xl text-memoria-gold-light">Elsa (Frozen)</h4>
-            <div class="movie-ticket-divider"></div>
-            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Gaun biru es dan rambut kepang samping.</p>
+            <p class="p-6 pt-5 text-sm text-gray-300 leading-relaxed">Gaun putih panjang, sabuk perak, rambut kepang sanggul, dan sepatu bot putih.</p>
+            <p class="px-6 pb-5 -mt-3 text-[11px] text-gray-500">Foto: sewmamasew.com</p>
           </article>
 
         </div>
@@ -550,17 +546,35 @@
             </div>
           </div>
 
+          <!-- Ajak teman: muncul hanya saat status Hadir -->
+          <div id="guestSection" class="hidden rounded-xl border border-memoria-gold/30 bg-memoria-velvet/20 p-3 sm:p-4 md:p-5">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="ajakTeman" class="mt-1 h-5 w-5 shrink-0 accent-[#d4af37] cursor-pointer">
+              <span>
+                <span class="block text-memoria-gold-light font-semibold">Ajak teman</span>
+                <span class="block text-sm text-gray-400">Boleh lebih dari satu, dari luar SIKC bahkan luar Telkom. Tiap teman mendapat tiket sendiri.</span>
+              </span>
+            </label>
+
+            <div id="guestFields" class="hidden mt-5 space-y-4">
+              <div id="guestList" class="space-y-4"></div>
+              <button type="button" id="addGuestBtn" class="w-full py-2.5 border border-dashed border-memoria-gold/50 text-memoria-gold text-sm font-semibold rounded-lg hover:bg-memoria-gold/10 transition-colors">+ Tambah teman lagi</button>
+              <p class="text-xs text-gray-500 leading-relaxed">Temanmu wajib mengikuti dress code dan aturan acara. Teman bisa ditambah atau dihapus nanti lewat Cek Tiket.</p>
+            </div>
+          </div>
+
           <button type="submit" id="submitBtn" class="w-full py-4 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold text-lg tracking-wider uppercase rounded-lg hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex justify-center items-center gap-2 mt-8">
             <span>Kirim Konfirmasi</span>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
           </button>
         </form>
+        <p class="text-center text-sm text-gray-400 mt-6 leading-relaxed">Sudah daftar atau kehilangan tiket? <a href="cek-tiket.html" id="cekTiketLink" class="text-memoria-gold font-semibold underline underline-offset-4 hover:text-memoria-gold-light">Cek tiketmu di sini</a> untuk melihat tiket, mengajak teman, atau mengubah kehadiran.</p>
       </div>
     </div>
   </section>
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 bg-memoria-velvet border border-memoria-gold text-memoria-gold-light px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(212,175,55,0.4)] flex items-center gap-3 transition-all duration-500 z-[10000] pointer-events-none">
+  <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 w-max max-w-[calc(100vw-2rem)] bg-memoria-velvet border border-memoria-gold text-memoria-gold-light px-5 py-3.5 rounded-2xl shadow-[0_10px_40px_rgba(212,175,55,0.4)] flex items-center gap-3 transition-all duration-500 z-[10000] pointer-events-none">
     <svg id="toastIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
     <span id="toastMsg" class="font-semibold tracking-wide">Berhasil!</span>
   </div>
@@ -569,13 +583,18 @@
   <section id="countdown" class="relative py-20 bg-memoria-black overflow-hidden border-t border-memoria-gold/10">
     <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
       <div class="reveal mb-10">
-        <h2 class="font-cinzel text-2xl md:text-4xl text-memoria-gold tracking-widest uppercase drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]">The Countdown Begins</h2>
-        <p class="text-gray-400 mt-2 font-playfair italic">Menuju hari penuh kenangan</p>
+        <h2 class="font-cinzel text-2xl md:text-4xl text-memoria-gold tracking-widest uppercase drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]" id="cdTitle">The Countdown Begins</h2>
+        <p id="cdSubtitle" class="text-gray-400 mt-2 font-playfair italic">Menuju hari penuh kenangan</p>
         <p class="flex items-center justify-center gap-2 text-memoria-gold-light text-sm mt-3"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3v3m8-3v3M4 9.5h16M5.5 5h13A1.5 1.5 0 0120 6.5v12a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-12A1.5 1.5 0 015.5 5z"/></svg><span>Sabtu, 5 Desember 2026</span></p>
         <p class="flex items-center justify-center gap-2 text-memoria-gold-light text-sm mt-1"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Aula FEB, Telkom University</span></p>
+        <div id="eventActions" class="mt-6 flex flex-wrap justify-center gap-3">
+          <a data-event-action="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Aula%20FEB%20Telkom%20University" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-memoria-gold/60 text-memoria-gold text-sm font-semibold hover:bg-memoria-gold hover:text-black transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Buka Maps</span></a>
+          <button type="button" data-event-action="calendar" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-memoria-gold/60 text-memoria-gold text-sm font-semibold hover:bg-memoria-gold hover:text-black transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3v3m8-3v3M4 9.5h16M5.5 5h13A1.5 1.5 0 0120 6.5v12a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-12A1.5 1.5 0 015.5 5zM12 13v4m-2-2h4"/></svg><span>Simpan ke Kalender</span></button>
+          <button type="button" data-share class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-memoria-gold/60 text-memoria-gold text-sm font-semibold hover:bg-memoria-gold hover:text-black transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.7 13.3a3 3 0 010-2.6m0 2.6l6.6 3.3m-6.6-5.9l6.6-3.3M21 5.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm0 13a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM8 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/></svg><span>Bagikan Undangan</span></button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-4 gap-3 md:gap-6 max-w-2xl mx-auto reveal">
+      <div id="cdGrid" class="grid grid-cols-4 gap-3 md:gap-6 max-w-2xl mx-auto reveal">
         <div class="bg-memoria-velvet/20 border border-memoria-gold/30 rounded-xl p-4 md:p-6 backdrop-blur-sm shadow-[0_0_20px_rgba(74,4,4,0.5)] relative overflow-hidden group">
           <div class="absolute inset-0 bg-gradient-to-b from-memoria-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div id="cd-days" class="font-cinzel text-3xl md:text-5xl text-memoria-gold-light drop-shadow-md">00</div>
@@ -601,7 +620,7 @@
   </section>
 
   <!-- 8. FOOTER -->
-  <footer class="relative py-12 bg-[#020202] border-t border-memoria-gold/20 overflow-hidden">
+  <footer class="relative pt-12 pb-24 md:pb-12 bg-[#020202] border-t border-memoria-gold/30 overflow-hidden">
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-memoria-gold to-transparent"></div>
     
     <div class="max-w-4xl mx-auto px-6 text-center relative z-10 flex flex-col items-center">
@@ -619,17 +638,13 @@
     </div>
   </footer>
 
-  <!-- 9. FLOATING ACTION BUTTONS (FAB) -->
-  <button id="shareBtn" class="fixed bottom-24 right-6 md:bottom-28 md:right-8 w-12 h-12 bg-memoria-gold text-black rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-110 hover:shadow-[0_0_30px_rgba(212,175,55,0.8)] transition-all duration-300 z-50 group" aria-label="Share">
-    <svg class="w-5 h-5 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-  </button>
-
-  <button id="scrollTopBtn" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-12 h-12 bg-memoria-black border border-memoria-gold text-memoria-gold rounded-full flex items-center justify-center opacity-0 translate-y-10 pointer-events-none hover:bg-memoria-velvet transition-all duration-300 z-50 shadow-lg" aria-label="Scroll to top">
+  <!-- 9. TOMBOL KEMBALI KE ATAS -->
+  <button id="scrollTopBtn" class="fixed bottom-5 right-4 md:bottom-8 md:right-8 w-11 h-11 bg-memoria-black/90 backdrop-blur-sm border border-memoria-gold/60 text-memoria-gold rounded-full flex items-center justify-center opacity-0 translate-y-10 pointer-events-none hover:bg-memoria-velvet transition-all duration-300 z-50 shadow-lg" aria-label="Kembali ke atas">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
   </button>
 
   <!-- SHARE TOAST NOTIFICATION -->
-  <div id="shareToast" class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-20 opacity-0 bg-memoria-velvet border border-memoria-gold text-memoria-gold-light px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(212,175,55,0.4)] flex items-center gap-3 transition-all duration-500 z-[10000] pointer-events-none">
+  <div id="shareToast" class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-20 opacity-0 w-max max-w-[calc(100vw-2rem)] bg-memoria-velvet border border-memoria-gold text-memoria-gold-light px-5 py-3.5 rounded-2xl shadow-[0_10px_40px_rgba(212,175,55,0.4)] flex items-center gap-3 transition-all duration-500 z-[10000] pointer-events-none">
     <div class="w-8 h-8 rounded-full bg-memoria-gold/20 flex items-center justify-center">
       <svg class="w-5 h-5 text-memoria-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
     </div>
@@ -641,7 +656,9 @@
 
   <!-- JAVASCRIPT FILES -->
   <script src="js/config.js"></script>
+  <script src="js/event-actions.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/guest-fields.js"></script>
   <script src="js/rsvp.js"></script>
   
 </body>

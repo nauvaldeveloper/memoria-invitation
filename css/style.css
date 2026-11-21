@@ -13,11 +13,6 @@
   background: #d4af37;
 }
 
-/* Efek Glow Teks */
-.text-glow {
-  text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-}
-
 /* --- TIMELINE RESPONSIVE (MOBILE) --- */
 @media (max-width: 768px) {
   .timeline-line {
@@ -54,58 +49,6 @@ select option {
 select option:hover, select option:focus {
   background-color: #4a0404;
   color: white;
-}
-
-/* ==========================================
-   EFEK TEATER & VELVET RED (HERO REVISI)
-========================================== */
-
-/* 1. Efek Lampu Sorot (Spotlight) */
-.spotlight {
-  position: absolute;
-  top: -10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80vw;
-  height: 80vh;
-  background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.15) 0%, rgba(138, 11, 21, 0.4) 40%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-  animation: breatheLight 6s ease-in-out infinite alternate;
-}
-
-@keyframes breatheLight {
-  0% { opacity: 0.8; transform: translateX(-50%) scale(1); }
-  100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
-}
-
-/* 2. Efek Partikel Debu Emas (Bintang) */
-.gold-dust {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, #d4af37 1px, transparent 1px);
-  background-size: 50px 50px;
-  opacity: 0.15;
-  z-index: 0;
-  pointer-events: none;
-  animation: floatDust 20s linear infinite;
-}
-
-@keyframes floatDust {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-50px); }
-}
-
-/* 3. Border Bingkai Emas */
-.gold-frame {
-  position: absolute;
-  inset: 2rem;
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  pointer-events: none;
-  z-index: 10;
-}
-@media (max-width: 768px) {
-  .gold-frame { inset: 1rem; }
 }
 
 /* Desain Placeholder "Coming Soon" untuk Gallery */

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Cek Tiket Memoria</title>
+  <meta name="theme-color" content="#4a0404" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { 'memoria-black': '#0a0a0a', 'memoria-velvet': '#4a0404', 'memoria-gold': '#d4af37', 'memoria-gold-light': '#f3e5ab' },
+          fontFamily: { 'cinzel': ['Cinzel', 'serif'], 'sans': ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-memoria-black text-gray-200 font-sans antialiased min-h-[100dvh] flex items-center justify-center p-4 sm:p-6">
+
+  <main class="w-full max-w-md py-4">
+    <div class="text-center mb-8">
+      <p class="text-memoria-gold text-xs tracking-[0.3em] uppercase font-semibold mb-2">Hima SIKC Presents</p>
+      <h1 class="font-cinzel font-bold text-4xl text-memoria-gold tracking-widest">MEMORIA</h1>
+      <p class="text-gray-400 text-sm mt-4">Cek tiketmu untuk melihat QR, mengajak teman, atau mengubah kehadiran.</p>
+    </div>
+
+    <form id="lookupForm" class="rounded-2xl border border-memoria-gold/30 bg-memoria-velvet/20 p-6 space-y-5" novalidate>
+      <div>
+        <label for="lookupNim" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">NIM</label>
+        <input type="text" id="lookupNim" inputmode="numeric" autocomplete="off" placeholder="NIM yang dipakai saat daftar" class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold text-base">
+      </div>
+      <div>
+        <label for="lookupNama" class="block text-memoria-gold text-xs tracking-widest uppercase mb-2 font-semibold">Nama Lengkap</label>
+        <input type="text" id="lookupNama" autocomplete="name" placeholder="Sesuai saat daftar" class="w-full bg-memoria-black/50 border border-memoria-gold/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-memoria-gold focus:ring-1 focus:ring-memoria-gold text-base">
+      </div>
+      <p id="lookupError" class="text-sm text-red-400 min-h-[1.25rem]" role="alert"></p>
+      <button id="lookupSubmit" type="submit" class="w-full py-3.5 bg-gradient-to-r from-memoria-gold to-yellow-600 text-black font-bold uppercase tracking-wider rounded-lg disabled:opacity-60">Cek Tiket</button>
+    </form>
+
+    <p class="text-center text-sm text-gray-400 mt-6">Belum daftar? <a href="index.html#rsvp" class="text-memoria-gold font-semibold underline underline-offset-4">Daftar di sini</a></p>
+    <p class="text-center text-xs text-gray-500 mt-3">Tamu yang diajak temannya: minta link tiket ke teman yang mendaftarkanmu.</p>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script>
+    // Cek Tiket: NIM + nama yang cocok membuka halaman tiket milik pendaftar.
+    const lookupForm = document.getElementById('lookupForm');
+    const lookupNim = document.getElementById('lookupNim');
+    const lookupNama = document.getElementById('lookupNama');
+    const lookupError = document.getElementById('lookupError');
+    const lookupSubmit = document.getElementById('lookupSubmit');
+
+    lookupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nim = lookupNim.value.trim();
+      const nama = lookupNama.value.replace(/\s+/g, ' ').trim();
+      if (!/^\d{5,20}$/.test(nim)) {
+        lookupError.textContent = 'NIM harus berupa 5–20 angka.';
+        lookupNim.focus();
+        return;
+      }
+      if (!nama) {
+        lookupError.textContent = 'Nama lengkap wajib diisi.';
+        lookupNama.focus();
+        return;
+      }
+
+      lookupError.textContent = '';
+      lookupSubmit.disabled = true;
+      lookupSubmit.textContent = 'Mencari...';
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'lookup', nim, nama })
+        });
+        const result = await response.json();
+        if (result.status === 'ok') {
+          window.location.href = `tiket.html?t=${encodeURIComponent(result.token)}`;
+          return;
+        }
+        lookupError.textContent = result.status === 'not_found'
+          ? 'NIM ini belum terdaftar. Silakan daftar dulu lewat form RSVP.'
+          : result.status === 'name_mismatch'
+            ? 'Nama tidak cocok dengan NIM ini. Tulis nama lengkap seperti saat mendaftar.'
+            : (result.message || 'Gagal mencari tiket, coba lagi.');
+      } catch (err) {
+        console.error('Gagal cek tiket', err);
+        lookupError.textContent = 'Koneksi gagal. Cek internetmu, lalu coba lagi.';
+      }
+      lookupSubmit.disabled = false;
+      lookupSubmit.textContent = 'Cek Tiket';
+    });
+  </script>
+</body>
+</html>

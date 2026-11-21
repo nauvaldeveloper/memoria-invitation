@@ -31,9 +31,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4500);
   }
 
-  function goToTicket(token, state) {
-    window.location.href = `tiket.html?t=${encodeURIComponent(token)}&s=${state}`;
+  // state: new (baru daftar) atau exists (NIM sudah terdaftar). rejected: jumlah teman yang tertolak kuota.
+  function goToTicket(token, state, rejected) {
+    const extra = rejected ? `&r=${encodeURIComponent(rejected)}` : '';
+    window.location.href = `tiket.html?t=${encodeURIComponent(token)}&s=${state}${extra}`;
   }
+
+  // --- AJAK TEMAN (tanpa batas) ---
+  const guestSection = document.getElementById('guestSection');
+  const guestFields = document.getElementById('guestFields');
+  const ajakTeman = document.getElementById('ajakTeman');
+  const guests = window.GuestFields(document.getElementById('guestList'), document.getElementById('addGuestBtn'));
+
+  function updateGuestForm() {
+    const hadir = form.kehadiran.value === 'hadir';
+    guestSection.classList.toggle('hidden', !hadir);
+    guestFields.classList.toggle('hidden', !(hadir && ajakTeman.checked));
+  }
+
+  form.kehadiran.addEventListener('change', updateGuestForm);
+  ajakTeman.addEventListener('change', updateGuestForm);
+  form.addEventListener('reset', () => setTimeout(() => { guests.reset(); updateGuestForm(); }, 0));
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -58,6 +76,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (formData.kehadiran === 'hadir' && ajakTeman.checked) {
+      const error = guests.validate();
+      if (error) {
+        showToast('⚠ ' + error, true);
+        return;
+      }
+      formData.teman = guests.values();
+    }
+
     const originalBtnHTML = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = `
@@ -76,9 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (result.status !== 'ok') {
         showToast('⚠ ' + (result.message || 'Gagal mengirim, coba lagi.'), true);
       } else if (result.result === 'registered') {
-        goToTicket(result.token, 'new');
-      } else if (result.result === 'already') {
-        goToTicket(result.token, 'already');
+        goToTicket(result.token, 'new', result.guestsRejected);
+      } else if (result.result === 'exists') {
+        // NIM sudah terdaftar: data tidak diubah, langsung ke halaman tiket (Cek Tiket).
+        goToTicket(result.token, 'exists');
       } else if (result.result === 'declined') {
         showToast('✓ Terima kasih, konfirmasimu sudah tersimpan.');
         form.reset();

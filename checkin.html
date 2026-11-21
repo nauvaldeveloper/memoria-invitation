@@ -59,6 +59,10 @@
       box-shadow: 0 0 0 1px #d4af37;
     }
     .field::placeholder { color: #737373; }
+
+    /* Baris filter yang bisa digeser tanpa scrollbar */
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
       </style>
 </head>
 <body class="bg-memoria-black text-white font-sans antialiased h-[100dvh] flex flex-col overflow-hidden">
@@ -88,7 +92,7 @@
 
       <div class="mt-3">
         <div class="flex items-baseline justify-between mb-1.5">
-          <span class="text-xs text-gray-300">Peserta hadir</span>
+          <span class="text-xs text-gray-300">Peserta hadir <span id="tamuHadir" class="text-gray-400"></span></span>
           <span class="text-sm tabular-nums"><span id="totalHadir" class="text-xl font-bold text-memoria-gold">0</span> <span class="text-gray-300">/ <span id="totalTerdaftar">0</span></span></span>
         </div>
         <div class="h-1.5 rounded-full bg-black/40 overflow-hidden">
@@ -122,6 +126,39 @@
       <section id="manualView" class="hidden" aria-labelledby="manualTitle">
         <h2 id="manualTitle" class="text-lg font-semibold mb-1">Daftar Manual</h2>
         <p class="text-sm text-gray-400 mb-4">Untuk peserta yang belum daftar. Peserta langsung tercatat hadir.</p>
+
+        <div id="manualModes" class="grid grid-cols-2 gap-2 p-1 mb-5 rounded-xl bg-neutral-900 border border-white/10" role="group" aria-label="Jenis peserta">
+          <button type="button" data-mode="mahasiswa" class="py-2 rounded-lg text-sm font-semibold transition-colors">Mahasiswa</button>
+          <button type="button" data-mode="tamu" class="py-2 rounded-lg text-sm font-semibold transition-colors">Tamu (teman)</button>
+        </div>
+
+        <form id="guestForm" class="hidden space-y-4" novalidate>
+          <div>
+            <label for="guestHost" class="block text-sm font-medium text-gray-300 mb-1.5">NIM pengundang</label>
+            <input type="text" id="guestHost" inputmode="numeric" autocomplete="off" placeholder="NIM mahasiswa yang mengajak" class="field">
+            <p id="guestHostInfo" class="text-xs text-gray-400 mt-1.5 min-h-[1rem]"></p>
+          </div>
+          <div>
+            <label for="guestNama" class="block text-sm font-medium text-gray-300 mb-1.5">Nama lengkap tamu</label>
+            <input type="text" id="guestNama" autocomplete="off" maxlength="100" placeholder="Sesuai kartu identitas" class="field">
+          </div>
+          <div>
+            <label for="guestAsal" class="block text-sm font-medium text-gray-300 mb-1.5">Asal tamu</label>
+            <select id="guestAsal" class="field">
+              <option value="" selected disabled>Pilih asal</option>
+              <option value="telkom">Mahasiswa Telkom (prodi lain)</option>
+              <option value="kampus_lain">Mahasiswa kampus lain</option>
+              <option value="umum">Umum</option>
+            </select>
+          </div>
+          <div id="guestInstansiWrap" class="hidden">
+            <label for="guestInstansi" id="guestInstansiLabel" class="block text-sm font-medium text-gray-300 mb-1.5">Nama kampus</label>
+            <input type="text" id="guestInstansi" autocomplete="off" maxlength="100" class="field">
+          </div>
+          <p id="guestError" class="text-sm text-red-400 min-h-[1.25rem]" role="alert"></p>
+          <button id="guestSubmit" type="submit" class="w-full py-3 bg-memoria-gold text-black font-bold rounded-xl hover:bg-yellow-500 transition-colors disabled:opacity-60">Daftarkan Tamu &amp; Check-In</button>
+        </form>
+
         <form id="manualForm" class="space-y-4" novalidate>
           <div>
             <label for="manualNim" class="block text-sm font-medium text-gray-300 mb-1.5">NIM</label>
@@ -144,12 +181,43 @@
         </form>
       </section>
 
+      <!-- Daftar peserta -->
+      <section id="listView" class="hidden" aria-labelledby="listTitle">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="min-w-0">
+            <h2 id="listTitle" class="text-lg font-semibold mb-1">Daftar Peserta</h2>
+            <p id="listSummary" class="text-sm text-gray-400">Memuat data...</p>
+          </div>
+          <button id="exportBtn" type="button" class="shrink-0 inline-flex items-center gap-2 px-3.5 py-2 bg-memoria-gold text-black text-sm font-bold rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+            <span>Export</span>
+          </button>
+        </div>
+
+        <div id="listFilters" class="no-scrollbar flex gap-2 overflow-x-auto mb-3 -mx-4 px-4" role="group" aria-label="Filter status peserta">
+          <button type="button" data-filter="semua" class="shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-semibold transition-colors">Semua <span data-count></span></button>
+          <button type="button" data-filter="hadir" class="shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-semibold transition-colors">Sudah hadir <span data-count></span></button>
+          <button type="button" data-filter="belum" class="shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-semibold transition-colors">Belum hadir <span data-count></span></button>
+          <button type="button" data-filter="tidak" class="shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-semibold transition-colors">RSVP tidak hadir <span data-count></span></button>
+        </div>
+        <div id="kategoriFilters" class="flex gap-2 mb-3" role="group" aria-label="Filter kategori peserta">
+          <button type="button" data-kategori="semua" class="px-3 py-1 rounded-lg border text-xs font-semibold transition-colors">Semua kategori</button>
+          <button type="button" data-kategori="Mahasiswa" class="px-3 py-1 rounded-lg border text-xs font-semibold transition-colors">Mahasiswa <span data-count></span></button>
+          <button type="button" data-kategori="Tamu" class="px-3 py-1 rounded-lg border text-xs font-semibold transition-colors">Tamu <span data-count></span></button>
+        </div>
+
+        <label for="listSearch" class="sr-only">Saring peserta</label>
+        <input type="search" id="listSearch" autocomplete="off" placeholder="Saring nama, NIM, jurusan, atau pengundang" class="field mb-3">
+        <p id="exportError" class="hidden text-sm text-red-400 mb-3" role="alert">Gagal membuat file. Cek koneksi internet, lalu coba lagi.</p>
+        <div id="participantList" class="space-y-2"></div>
+      </section>
+
     </div>
   </main>
 
   <!-- NAVIGASI BAWAH -->
   <nav class="shrink-0 bg-[#111] border-t border-white/10 pb-[env(safe-area-inset-bottom)]" aria-label="Menu check-in">
-    <div class="w-full max-w-lg mx-auto grid grid-cols-3">
+    <div class="w-full max-w-lg mx-auto grid grid-cols-4">
       <button id="tabScanBtn" type="button" class="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M4 12h16"/></svg>
         Scan QR
@@ -161,6 +229,10 @@
       <button id="tabManualBtn" type="button" class="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 003 17.5V19M12.5 7.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0zM18.5 8v6M15.5 11h6"/></svg>
         Daftar Manual
+      </button>
+      <button id="tabListBtn" type="button" class="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>
+        Peserta
       </button>
     </div>
   </nav>
